@@ -35,6 +35,31 @@ Route::prefix('setup')->name('setup.')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Landing / Key Verification (Step 0)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/', [SetupController::class, 'index'])->name('index');
+    Route::post('/verify-key', [SetupController::class, 'verifyKey'])->name('verify-key');
+
+    /*
+    |--------------------------------------------------------------------------
+    | AJAX Credential Test Endpoints (no session-verified check needed)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('test-database', [SetupController::class, 'testDatabase'])->name('test-database');
+    Route::post('test-mail', [SetupController::class, 'testMail'])->name('test-mail');
+    Route::post('test-stripe', [SetupController::class, 'testStripe'])->name('test-stripe');
+    Route::post('test-storage', [SetupController::class, 'testStorage'])->name('test-storage');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Repair (accessible when DB integrity check fails)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('database-repair', [SetupController::class, 'databaseRepair'])->name('database-repair');
+
+    /*
+    |--------------------------------------------------------------------------
     | Requirements
     |--------------------------------------------------------------------------
     */

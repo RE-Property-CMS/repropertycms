@@ -146,6 +146,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Setup Wizard Key
+    |--------------------------------------------------------------------------
+    |
+    | This key is required to initiate the setup wizard on first install.
+    | Set SETUP_KEY in your .env file before beginning installation.
+    | Keep this secret — it protects against unauthorized setup attempts.
+    |
+    */
+    'setup_key' => env('SETUP_KEY', null),
+
+    /*
+    |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
     |

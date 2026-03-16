@@ -8,6 +8,7 @@ use App\Http\Controllers\Backend\AgentListingController;
 use App\Http\Controllers\Backend\PropertiesController;
 use App\Http\Controllers\Backend\SubscriberController;
 use App\Http\Controllers\Backend\PagesController;
+use App\Http\Controllers\Backend\SettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,6 +90,31 @@ Route::namespace('Backend')->group(function () {
             Route::get('update/{id?}', 'PagesController@update')->name('update');
             Route::get('delete', 'PagesController@delete');
             Route::get('status', 'PagesController@status');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Integration Settings (Post-Setup Configuration)
+    |--------------------------------------------------------------------------
+    */
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [SettingsController::class, 'index'])->name('index');
+
+            Route::get('mail', [SettingsController::class, 'mail'])->name('mail');
+            Route::post('mail', [SettingsController::class, 'saveMail'])->name('mail.save');
+            Route::post('mail/test', [SettingsController::class, 'testMail'])->name('mail.test');
+
+            Route::get('stripe', [SettingsController::class, 'stripe'])->name('stripe');
+            Route::post('stripe', [SettingsController::class, 'saveStripe'])->name('stripe.save');
+            Route::post('stripe/test', [SettingsController::class, 'testStripe'])->name('stripe.test');
+
+            Route::get('storage', [SettingsController::class, 'storage'])->name('storage');
+            Route::post('storage', [SettingsController::class, 'saveStorage'])->name('storage.save');
+            Route::post('storage/test', [SettingsController::class, 'testStorage'])->name('storage.test');
+
+            Route::get('captcha', [SettingsController::class, 'captcha'])->name('captcha');
+            Route::post('captcha', [SettingsController::class, 'saveCaptcha'])->name('captcha.save');
+            Route::post('captcha/test', [SettingsController::class, 'testCaptcha'])->name('captcha.test');
         });
     });
 

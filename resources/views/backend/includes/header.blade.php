@@ -36,6 +36,11 @@
           </a>
       </li>
       <li>
+          <a href="{{route('backend.settings.index')}}"><i class="fas fa-cog pr-2"></i>
+              <span>Settings</span>
+          </a>
+      </li>
+      <li>
           <a href="{{url('backend/sign-out')}}">
         <i class="fas fa-door-open pr-2"></i>
         <span>Sign Out</span>
