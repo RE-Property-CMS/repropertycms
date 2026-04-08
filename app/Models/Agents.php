@@ -26,8 +26,6 @@ class Agents extends Authenticatable implements MustVerifyEmail
 
     protected $primarykey = 'id';
 
-    protected $with = ['properties'];
-
     protected $guarded = [];
 
     /**

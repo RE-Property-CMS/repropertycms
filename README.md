@@ -26,7 +26,6 @@
 17. [File Storage](#17-file-storage)
 18. [Deployment & CI/CD](#18-deployment--cicd)
 19. [Coding Conventions](#19-coding-conventions)
-20. [Known Issues & Tech Debt](#20-known-issues--tech-debt)
 
 ---
 
@@ -1023,26 +1022,6 @@ php artisan queue:restart       # After code changes affecting jobs
 - Never expose raw file system paths in responses
 - File uploads: whitelist allowed MIME types and extensions; validate server-side
 - Stripe webhooks: always verify signature via `Webhook::constructEvent()`
-
----
-
-## 20. Known Issues & Tech Debt
-
-These are documented for the next developer — fix them as time allows.
-
-| # | Location | Issue | Priority |
-|---|---------|-------|---------|
-| 1 | `StripeWebhookController::handleSubscriptionUpdated()` | Hardcoded email `ra@odysseydesign.us` exempt from auto-unpublish. **Must be removed** before distributing as white-label. | Critical |
-| 2 | `app/Http/Requests/` | Empty — all validation is done inline in controllers with `Validator::make()`. New features should use Form Request classes. | Medium |
-| 3 | `SetupController.php` | Monolithic (18K+ lines). Should be split into step-specific controllers or invokable action classes. | Medium |
-| 4 | `Properties` model | Three overlapping `agent` relationships: `agent()`, `agentRelation()`, `agents()`. Consolidate to one. | Low |
-| 5 | `PropertyAmenities` model | `protected $with = ['Amenities']` causes N+1 eager loading globally. Replace with explicit `->with('Amenities')` at query time. | Low |
-| 6 | `Agents` model | `protected $with = ['properties']` — same N+1 risk on all agent queries. | Low |
-| 7 | Model naming | Some models use `PascalCase` (`Properties`) while others use `snake_case` (`Property_images`, `credit_logs`). Standardize to `PascalCase`. | Low |
-| 8 | Form Request validation | No form request classes exist. Validation is scattered across controllers. | Medium |
-| 9 | Pusher / Laravel Echo | Client-side Echo is commented out in `resources/js/bootstrap.js`. Real-time notifications are not functional. | Low |
-| 10 | `app/Http/Controllers/Auth/` | Some controllers lack return type declarations. | Low |
-| 11 | Property contact form | `PropertyController::Contact_Form()` sends mail directly (not queued). Move to the existing `SendContactFormEmail` job. | Low |
 
 ---
 

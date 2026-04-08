@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
 use App\Models\Properties;
-use App\Models\Property_videos;
+use App\Models\PropertyVideos;
 use App\Models\PropertySlider;
 use Illuminate\Http\Request;
 
@@ -134,7 +134,7 @@ class TopbarsController extends Controller
 
             } elseif ($request['type'] == 'video') {
                 // Get the all videos of the property
-                $propertyvideos = Property_videos::where('property_id', '=', $property->id)->get();
+                $propertyvideos = PropertyVideos::where('property_id', '=', $property->id)->get();
 
                 if ($propertyvideos->count() > 0) {
 

@@ -4,7 +4,7 @@ namespace App\Livewire\Agent\Topbar;
 
 use App\Livewire\Agent\Topbar\Choose;
 use App\Models\Properties;
-use App\Models\Property_images;
+use App\Models\PropertyImages;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -44,7 +44,7 @@ class Image extends Component
     public function render()
     {
         if ($this->property) {
-            $this->property_images = Property_images::where('property_id', $this->property->id)->get();
+            $this->property_images = PropertyImages::where('property_id', $this->property->id)->get();
         }
 
         return view('livewire.agent.topbar.image');

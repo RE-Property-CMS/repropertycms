@@ -127,6 +127,8 @@ Route::namespace('Backend')->group(function () {
 
             Route::get('brand', [SettingsController::class, 'brand'])->name('brand');
             Route::post('brand', [SettingsController::class, 'saveBrand'])->name('brand.save');
+
+            Route::get('docs', [SettingsController::class, 'docs'])->name('docs');
         });
     });
 

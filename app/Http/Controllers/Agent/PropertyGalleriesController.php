@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
-use App\Models\Property_images;
+use App\Models\PropertyImages;
 use App\Models\PropertyGalleries;
 use App\Models\PropertyGalleryImages;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class PropertyGalleriesController extends Controller
         $property = session('property');
 
         if (! is_null($property)) {
-            $property_images = Property_images::where('property_id', '=', $property->id)->get();
+            $property_images = PropertyImages::where('property_id', '=', $property->id)->get();
             // here join the property gallery Table with Property Gallery Images table
             $property_gallery = PropertyGalleries::where('property_id', '=', $property->id)->with('Property_gallery_images')->get();
 
@@ -132,7 +132,7 @@ class PropertyGalleriesController extends Controller
     {
         $property = session('property');
         if (! is_null($property)) {
-            $property_images = Property_images::where('property_id', '=', $property->id)->get();
+            $property_images = PropertyImages::where('property_id', '=', $property->id)->get();
 
             // here join the property gallery Table with Property Gallery Images table
             $property_gallerys = PropertyGalleries::where('property_id', '=', $property->id)->with('Property_gallery_images')->get();

@@ -13,9 +13,6 @@ class PropertyAmenities extends Model
 
     protected $primarykey = 'id';
 
-    //TODO: this link is used in Properties load - need to fix and join in the Properties controller
-    protected $with = ['Amenities'];
-
     protected $guarded = [];
 
     public function Properties()

@@ -7,9 +7,9 @@ use App\Models\Agent_addresses;
 use App\Models\Agents;
 use App\Models\Amenities;
 use App\Models\Properties;
-use App\Models\Property_images;
-use App\Models\Property_matterport;
-use App\Models\Property_videos;
+use App\Models\PropertyImages;
+use App\Models\PropertyMatterport;
+use App\Models\PropertyVideos;
 use App\Models\PropertyAmenities;
 use App\Models\PropertyFloorplans;
 use App\Models\PropertyGalleries;
@@ -324,7 +324,7 @@ class DemoSeederController extends Controller
 
                 $imageIds = [];
                 foreach ($propertyImages as $img) {
-                    $image = Property_images::create([
+                    $image = PropertyImages::create([
                         'property_id' => $property->id,
                         'file_name'   => $img,
                         'thumb'       => $img,
@@ -346,7 +346,7 @@ class DemoSeederController extends Controller
                 }
 
                 // YouTube video (featured = shows in "Property Video" section)
-                Property_videos::create([
+                PropertyVideos::create([
                     'property_id' => $property->id,
                     'title'       => $listing['property']['name'] . ' — Property Tour',
                     'file_name'   => null,
@@ -358,7 +358,7 @@ class DemoSeederController extends Controller
                 ]);
 
                 // Matterport 3D tour (Matterport's own public demo space)
-                Property_matterport::create([
+                PropertyMatterport::create([
                     'property_id'    => $property->id,
                     'matterport_url' => $matterportUrl,
                 ]);

@@ -34,11 +34,6 @@ class DemoCron extends Command
                         continue;
                     }
 
-                    if ($agent->email === 'ra@odysseydesign.us') {
-                        Log::info("Skipped agent {$agentId} (email excluded)");
-                        continue;
-                    }
-
                     Log::info("Processing agent={$agentId}, email={$agent->email}, properties=" . $props->count());
 
                     $mailData = [];

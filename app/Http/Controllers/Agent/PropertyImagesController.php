@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
 use App\Models\Properties;
-use App\Models\Property_images;
+use App\Models\PropertyImages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -53,7 +53,7 @@ class PropertyImagesController extends Controller
             $thumb_path = uploadS3ImageThumb('property_images_thumb', $request->file, env('THUMB_WIDTH'));
 
             /* Store $imageName name in DATABASE from HERE */
-            $property_image = new Property_images;
+            $property_image = new PropertyImages;
             $property_image->property_id = $property_id;
             $property_image->file_name = $path;
             $property_image->thumb = $thumb_path;
@@ -115,12 +115,12 @@ class PropertyImagesController extends Controller
                 $imgFile->resize(1080, 1920, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($path.'/'.$image_name);
-                $property_image = new Property_images;
+                $property_image = new PropertyImages;
                 $property_image->property_id = $property_id;
                 $property_image->file_name = $image_name;
 
                 if($property_image->save()){
-                    $property_image = Property_images::where('file_name', '=', $image_name)->first();
+                    $property_image = PropertyImages::where('file_name', '=', $image_name)->first();
                     $data['success'] = 1;
                     $data['message'] = 'Uploaded Successfully!';
                     $data['size'] = $size;
@@ -147,7 +147,7 @@ class PropertyImagesController extends Controller
     public function rotateImage($id, Request $request)
     {
         if (! is_null($id)) {
-            $property_image = Property_images::find($id);
+            $property_image = PropertyImages::find($id);
             $image_file = $property_image->file_name;
             $image_path = public_path().'/files/property_images/'.$property_image->property_id.'/';
             $degrees = $request->degrees;
@@ -198,7 +198,7 @@ class PropertyImagesController extends Controller
                 deleteS3Image($property_image->file_name);
                 $imageName = time().'_'.$image_file;
                 $path = uploadS3Base64Image('property_images', $imageName, file_get_contents($image_path.$image_file));
-                Property_images::where('id', '=', $property_image->id)->update(['file_name' => $path]);
+                PropertyImages::where('id', '=', $property_image->id)->update(['file_name' => $path]);
 
                 imagedestroy($source);
                 imagedestroy($rotate);

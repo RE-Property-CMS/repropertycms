@@ -5,16 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class credit_logs extends Model
+class PropertyImages extends Model
 {
     use HasFactory;
 
-    protected $table = 'credit_logs';
+    protected $table = 'property_images';
 
     protected $primarykey = 'id';
 
-    public function agents()
-    {
-        return $this->hasOne(Agents::class, 'id', 'agent_id');
-    }
+    protected $guarded = [];
 }

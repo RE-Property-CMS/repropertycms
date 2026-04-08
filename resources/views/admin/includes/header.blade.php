@@ -47,6 +47,11 @@
           </a>
       </li>
       <li>
+          <a href="{{route('admin.settings.docs')}}"><i class="fas fa-book pr-2"></i>
+              <span>Help & Docs</span>
+          </a>
+      </li>
+      <li>
           <a href="{{url('admin/sign-out')}}">
         <i class="fas fa-door-open pr-2"></i>
         <span>Sign Out</span>

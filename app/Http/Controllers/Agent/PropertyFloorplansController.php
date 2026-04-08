@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
 use App\Models\Properties;
-use App\Models\Property_images;
+use App\Models\PropertyImages;
 use App\Models\PropertyFloorplanImages;
 use App\Models\PropertyFloorplans;
 use Illuminate\Http\Request;
@@ -148,7 +148,7 @@ class PropertyFloorplansController extends Controller
                 $data[] = $object->property_image_id;
             }
 
-            $property_images = Property_images::where('property_id', '=', $property['id'])->whereNotIn('id', $data)->get();
+            $property_images = PropertyImages::where('property_id', '=', $property['id'])->whereNotIn('id', $data)->get();
 
             return view('agent/property-floorplan/Hotspot', compact('property_floorplans', 'property', 'property_floorplan_images', 'property_images'));
 
@@ -174,7 +174,7 @@ class PropertyFloorplansController extends Controller
                 $data[] = $object->property_image_id;
             }
 
-            $property_images = Property_images::where('property_id', '=', $property['id'])->whereNotIn('id', $data)->get();
+            $property_images = PropertyImages::where('property_id', '=', $property['id'])->whereNotIn('id', $data)->get();
 
             return view('agent/property-floorplan/hotspot-new', compact('property_floorplans', 'property', 'property_floorplan_images', 'property_images'));
         } else {
@@ -243,7 +243,7 @@ class PropertyFloorplansController extends Controller
 
     public function getPropertyImage($id)
     {
-        $property_image = Property_images::find($id);
+        $property_image = PropertyImages::find($id);
 
         if ($property_image) {
             try {
@@ -280,7 +280,7 @@ class PropertyFloorplansController extends Controller
                 $property_floorplan_images->floorplan_image_ratio = $request['image_height'].','.$request['image_width'];
                 if ($property_floorplan_images->save()) {
 
-                    $property_images = Property_images::where('id', '=', $property_floorplan_images['property_image_id'])->first();
+                    $property_images = PropertyImages::where('id', '=', $property_floorplan_images['property_image_id'])->first();
                     $data['success'] = 1;
                     $data['id'] = $request['property_image_id'];
                     $data['property_id'] = $property->id;

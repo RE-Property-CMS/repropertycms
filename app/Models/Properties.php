@@ -20,21 +20,9 @@ class Properties extends Model
         'main_section' => BannerType::class,
     ];
 
-    public function agent()
-    {
-        return $this->hasOne(Agents::class, 'id', 'agent_id');
-    }
-
-    // Add new one with a safe name
     public function agentRelation()
     {
-        return $this->belongsTo(\App\Models\Agents::class, 'agent_id');
-    }
-
-    //todo:remove ambigious method after checking uses
-    public function agents()
-    {
-        return $this->hasOne(Agents::class, 'id', 'agent_id');
+        return $this->belongsTo(Agents::class, 'agent_id');
     }
 
     public function property_amenities()
@@ -44,22 +32,22 @@ class Properties extends Model
 
     public function property_images()
     {
-        return $this->hasMany(Property_images::class, 'property_id', 'id');
+        return $this->hasMany(PropertyImages::class, 'property_id', 'id');
     }
 
     public function property_videos()
     {
-        return $this->hasMany(Property_videos::class, 'property_id', 'id');
+        return $this->hasMany(PropertyVideos::class, 'property_id', 'id');
     }
 
     public function property_matterports()
     {
-        return $this->hasMany(Property_matterport::class, 'property_id', 'id');
+        return $this->hasMany(PropertyMatterport::class, 'property_id', 'id');
     }
 
     public function propertyImages()
     {
-        return $this->hasMany(Property_images::class, 'property_id');
+        return $this->hasMany(PropertyImages::class, 'property_id');
     }
 
     public function property_floorplans()

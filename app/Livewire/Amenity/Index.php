@@ -35,11 +35,11 @@ class Index extends Component
             'property_id' => $this->property->id,
             'amenity_id' => $amenity_id,
         ]);
-        $this->property_amenities = $this->property->property_amenities;
+        $this->property_amenities = $this->property->property_amenities()->with('Amenities')->get();
         $this->amenities = Amenities::where('agent_id', 0)
             ->orWhere('agent_id', $this->property->agent_id)
             ->get();
-        $this->amenities_array = $this->property->property_amenities->pluck('amenity_id')->toArray();
+        $this->amenities_array = $this->property->property_amenities()->pluck('amenity_id')->toArray();
         $this->dispatch('refresh');
     }
 
@@ -66,7 +66,7 @@ class Index extends Component
         $this->amenities = Amenities::where('agent_id', 0)
             ->orWhere('agent_id', $this->property->agent_id)
             ->get();
-        $this->amenities_array = $this->property->property_amenities->pluck('amenity_id')->toArray();
+        $this->amenities_array = $this->property->property_amenities()->pluck('amenity_id')->toArray();
         $this->property_amenities = [];
         $this->dispatch('refresh');
     }
@@ -102,11 +102,11 @@ class Index extends Component
     public function mount(Properties $property)
     {
         $this->property = $property;
-        $this->property_amenities = $property->property_amenities;
+        $this->property_amenities = $property->property_amenities()->with('Amenities')->get();
         $this->amenities = Amenities::where('agent_id', 0)
             ->orWhere('agent_id', $property->agent_id)
             ->get();
-        $this->amenities_array = $property->property_amenities->pluck('amenity_id')->toArray();
+        $this->amenities_array = $property->property_amenities()->pluck('amenity_id')->toArray();
     }
 
     public function render()

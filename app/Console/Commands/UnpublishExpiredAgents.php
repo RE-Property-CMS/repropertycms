@@ -32,11 +32,9 @@ class UnpublishExpiredAgents extends Command
             ->get();
         foreach ($expiredSubscriptions as $subscription) {
             $agent = $subscription->agent;
-            if ($agent->email !== 'ra@odysseydesign.us') {
-                $agent->properties()->update([
-                    'published' => 0,
-                ]);
-            }
+            $agent->properties()->update([
+                'published' => 0,
+            ]);
 
 //            $agent->notify(new AgentUnpublishProperty);
         }

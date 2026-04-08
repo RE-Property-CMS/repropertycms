@@ -3,7 +3,7 @@
 namespace App\Livewire\Video;
 
 use App\Models\Properties;
-use App\Models\Property_videos;
+use App\Models\PropertyVideos;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -24,7 +24,7 @@ class View extends Component
     public function openModal(int $propertyId, int $videoId): void
     {
         $this->property = Properties::find($propertyId);
-        $this->property_video = Property_videos::find($videoId);
+        $this->property_video = PropertyVideos::find($videoId);
         $this->display_on = $this->getInitialDisplayOnValue();
         $this->show = true;
     }
@@ -39,7 +39,7 @@ class View extends Component
         switch ($value) {
             case 'both':
                 $this->property->property_videos()->update(['main_video' => 0, 'featured' => 0]);
-                Property_videos::where('property_id', $this->property->id)->update([
+                PropertyVideos::where('property_id', $this->property->id)->update([
                     'main_video' => 1,
                     'featured' => 1,
                 ]);
@@ -47,7 +47,7 @@ class View extends Component
                 break;
             case 'cover':
                 $this->property->property_videos()->update(['main_video' => 0]);
-                Property_videos::where('property_id', $this->property->id)->update([
+                PropertyVideos::where('property_id', $this->property->id)->update([
                     'main_video' => 1,
                     'featured' => 0,
                 ]);
@@ -55,7 +55,7 @@ class View extends Component
                 break;
             case 'featured':
                 $this->property->property_videos()->update(['featured' => 0]);
-                Property_videos::where('property_id', $this->property->id)->update([
+                PropertyVideos::where('property_id', $this->property->id)->update([
                     'main_video' => 0,
                     'featured' => 1,
                 ]);

@@ -2,21 +2,16 @@
 
 namespace App\Models;
 
-use App\Enums\VideoType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Property_videos extends Model
+class PropertyMatterport extends Model
 {
     use HasFactory;
 
-    protected $table = 'property_videos';
+    protected $table = 'property_matterport';
 
     protected $primarykey = 'id';
 
     protected $guarded = [];
-
-    protected $casts = [
-        'video_type' => VideoType::class,
-    ];
 }

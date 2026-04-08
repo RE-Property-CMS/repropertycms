@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
 use App\Models\Properties;
-use App\Models\Property_matterport;
-use App\Models\Property_videos;
+use App\Models\PropertyMatterport;
+use App\Models\PropertyVideos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
@@ -31,7 +31,7 @@ class VideoController extends Controller
     {
         $property = session('property');
         if (! is_null($property)) {
-            $property_matterports = Property_matterport::where('property_id', '=', $property['id'])->get();
+            $property_matterports = PropertyMatterport::where('property_id', '=', $property['id'])->get();
             $data = compact('property_matterports');
 
             return view('agent/video/3d-video')->with($data);
@@ -48,7 +48,7 @@ class VideoController extends Controller
         $property = session('property');
         if (! is_null($property)) {
 
-            $property_videos = Property_videos::where('property_id', '=', $property['id'])->count();
+            $property_videos = PropertyVideos::where('property_id', '=', $property['id'])->count();
 
             if ($property_videos >= 2) {
                 $data['success'] = 0;
@@ -93,7 +93,7 @@ class VideoController extends Controller
                         File::makeDirectory($path, 0777, true, true);
                     }
                     if ($video->move($path, $video_name)) {
-                        $property_video = new Property_videos;
+                        $property_video = new PropertyVideos;
                         $property_video->property_id = $property['id'];
                         $property_video->file_name = $video_name;
                         $status = $property_video->save();
@@ -129,9 +129,9 @@ class VideoController extends Controller
             $data = [];
             $video_id = $request['video_id'];
 
-            Property_videos::where('property_id', '=', $property['id'])->update(['main_video' => 0]);
+            PropertyVideos::where('property_id', '=', $property['id'])->update(['main_video' => 0]);
 
-            $status = Property_videos::where('id', '=', $video_id)->update(['main_video' => 1]);
+            $status = PropertyVideos::where('id', '=', $video_id)->update(['main_video' => 1]);
             if ($status) {
                 $data['success'] = 1;
                 $data['message'] = 'Cover Video Successfully Saved !';
@@ -154,13 +154,13 @@ class VideoController extends Controller
         if (! is_null($property)) {
             $data = [];
 
-            $videos = Property_videos::where('property_id', '=', $property->id)->get();
+            $videos = PropertyVideos::where('property_id', '=', $property->id)->get();
             foreach ($videos as $video) {
                 $video->featured = 0;
                 $video->save();
             }
 
-            $status = Property_videos::where('id', '=', $request['video_id'])->update(['featured' => 1]);
+            $status = PropertyVideos::where('id', '=', $request['video_id'])->update(['featured' => 1]);
             if ($status) {
                 $data['success'] = 1;
                 $data['message'] = 'Feature Video Successfully Saved !';
@@ -181,7 +181,7 @@ class VideoController extends Controller
     {
         if (! is_null($id)) {
             $data = [];
-            $property_video = Property_videos::find($id);
+            $property_video = PropertyVideos::find($id);
             $property_id = $property_video->property_id;
             $path = public_path().'/files/property_videos/'.$property_id.'/';
             if (is_null($property_video->video_url)) {
@@ -224,7 +224,7 @@ class VideoController extends Controller
                 $data['error'] = $validator->errors()->first('matterport_url'); // Error response
             } else {
                 $matterport_url = $request['matterport_url'];
-                $property_matterport = new Property_matterport;
+                $property_matterport = new PropertyMatterport;
                 $property_matterport->property_id = $property['id'];
                 $property_matterport->matterport_url = $matterport_url;
 
@@ -252,7 +252,7 @@ class VideoController extends Controller
     {
         if (! is_null($id)) {
             $data = [];
-            $status = Property_matterport::find($id)->delete();
+            $status = PropertyMatterport::find($id)->delete();
             if ($status) {
                 $data['success'] = 1;
                 $data['message'] = 'Url is Deleted !';
@@ -275,7 +275,7 @@ class VideoController extends Controller
 
         $property = session('property');
         if (! is_null($property)) {
-            $property_videos = Property_videos::where('property_id', '=', $property['id'])->count();
+            $property_videos = PropertyVideos::where('property_id', '=', $property['id'])->count();
 
             if ($property_videos >= 2) {
                 return redirect()->back()->with('error', 'You have Exceed your Video Uplaod Limit');
@@ -284,7 +284,7 @@ class VideoController extends Controller
                     'video_url' => 'required',
                 ]);
 
-                $property_video = new Property_videos;
+                $property_video = new PropertyVideos;
                 $property_video->property_id = $property['id'];
                 $property_video->video_type = $request['video_source'];
                 $property_video->video_url = $request['video_url'];

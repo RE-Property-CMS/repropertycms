@@ -79,10 +79,10 @@ class PropertyView extends Component
         }
 
         $this->state = $this->property->state;
-        $this->agent = $this->property->agent;
+        $this->agent = $this->property->agentRelation;
         $this->agent_address = $this->agent->agent_address;
 
-        $this->property_amenities = $this->property->property_amenities;
+        $this->property_amenities = $this->property->property_amenities()->with('Amenities')->get();
         $this->property_images = $this->property->property_images;
 
         if ($this->property_images->count() > 0) {

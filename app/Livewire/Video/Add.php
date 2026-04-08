@@ -4,7 +4,7 @@ namespace App\Livewire\Video;
 
 use App\Enums\VideoType;
 use App\Models\Properties;
-use App\Models\Property_videos;
+use App\Models\PropertyVideos;
 use BenSampo\Embed\Rules\EmbeddableUrl;
 use BenSampo\Embed\Services\Vimeo;
 use BenSampo\Embed\Services\YouTube;
@@ -103,7 +103,7 @@ class Add extends Component
             $this->reset('videos');
         }
 
-        $property_video = new Property_videos;
+        $property_video = new PropertyVideos;
         $property_video->property_id = $this->property->id;
         $property_video->video_type = $this->video_type;
         $property_video->video_url = $this->video_url;

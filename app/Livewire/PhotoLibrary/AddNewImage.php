@@ -3,7 +3,7 @@
 namespace App\Livewire\PhotoLibrary;
 
 use App\Models\Properties;
-use App\Models\Property_images;
+use App\Models\PropertyImages;
 use Illuminate\Http\File;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -53,7 +53,7 @@ class AddNewImage extends Component
                 $path = uploadS3Image('property_images', $image);
 				$thumb_path = uploadS3ImageThumb('property_images_thumb', $image, env('THUMB_WIDTH'));
 
-                $property_image = new Property_images;
+                $property_image = new PropertyImages;
                 $property_image->property_id = $this->property->id;
                 $property_image->file_name = $path;
                 $property_image->thumb = $thumb_path;
@@ -64,7 +64,7 @@ class AddNewImage extends Component
                 $image = new File($this->thumbnail['path']);
                 $path = uploadS3Image('property_images', $image);
                 $thumb_path = uploadS3ImageThumb('property_images_thumb', $image, env('THUMB_WIDTH'));
-                $property_image = new Property_images;
+                $property_image = new PropertyImages;
                 $property_image->property_id = $this->property->id;
                 $property_image->file_name = $path;
                 $property_image->thumb = $thumb_path;

@@ -3,7 +3,7 @@
 namespace App\Livewire\PhotoLibrary;
 
 use App\Models\Properties;
-use App\Models\Property_images;
+use App\Models\PropertyImages;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -23,7 +23,7 @@ class Index extends Component
 
     public function doDeleteImage($id)
     {
-        $property_image = Property_images::find($id);
+        $property_image = PropertyImages::find($id);
         if ($property_image->file_name) {
             deleteS3Image($property_image->file_name);
         }
@@ -41,7 +41,7 @@ class Index extends Component
 
     public function render()
     {
-        $this->property_images = Property_images::where('property_id', '=', $this->property->id)->get();
+        $this->property_images = PropertyImages::where('property_id', '=', $this->property->id)->get();
         return view('livewire.photo-library.index');
     }
 }

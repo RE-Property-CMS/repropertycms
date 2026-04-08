@@ -162,12 +162,10 @@ class StripeWebhookController extends Controller
                             'unpublishPropertiesCount' => $unpublishPropertiesCount,
                         ]);
 
-                        if ($agent->email !== 'ra@odysseydesign.us') {
-                            $agent->publishedProperties()
-                                ->orderBy('publish_date', 'desc')
-                                ->limit($unpublishPropertiesCount)
-                                ->update(['published' => false]);
-                        }
+                        $agent->publishedProperties()
+                            ->orderBy('publish_date', 'desc')
+                            ->limit($unpublishPropertiesCount)
+                            ->update(['published' => false]);
                     }
 
                     $agent->notify(new AgentSubscriptionRenewed($subscription, $agent));

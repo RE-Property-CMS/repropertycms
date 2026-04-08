@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Agents;
 use App\Models\Backend\Admin;
 use App\Models\Amenities;
-use App\Models\credit_logs;
+use App\Models\CreditLog;
 use App\Models\Properties;
-use App\Models\Property_images;
-use App\Models\Property_matterport;
-use App\Models\Property_videos;
+use App\Models\PropertyImages;
+use App\Models\PropertyMatterport;
+use App\Models\PropertyVideos;
 use App\Models\PropertyAmenities;
 use App\Models\PropertyDocuments;
 use App\Models\PropertyFloorplanImages;
@@ -227,7 +227,7 @@ class PropertyController extends Controller
     // Extract credit log update logic to a separate method
     private function updateCreditLog($agent, $propertyId)
     {
-        if (credit_logs::where('property_id', $propertyId)
+        if (CreditLog::where('property_id', $propertyId)
             ->where('credits', -1)
             ->where('type', 'Spent')
             ->exists()) {
@@ -240,7 +240,7 @@ class PropertyController extends Controller
             return false;
         }
 
-        $creditLog = new credit_logs;
+        $creditLog = new CreditLog;
         $creditLog->agent_id = $agent->id;
         $creditLog->property_id = $propertyId;
         $creditLog->credits = -1;
@@ -330,11 +330,11 @@ class PropertyController extends Controller
         PropertyGalleryImages::whereIn('gallery_id', $propertyGalleries)->delete();
         PropertyGalleries::where('property_id', $property->id)->delete();
         $this->deleteS3ImagesFromModel($property->property_images ?? [], 'property_images/', 'property_images_thumb/');
-        Property_images::where('property_id', $property->id)->delete();
+        PropertyImages::where('property_id', $property->id)->delete();
 
-        Property_matterport::where('property_id', $property->id)->delete();
+        PropertyMatterport::where('property_id', $property->id)->delete();
         PropertySlider::where('property_id', $property->id)->delete();
-        Property_videos::where('property_id', $property->id)->delete();
+        PropertyVideos::where('property_id', $property->id)->delete();
     }
 
     // Extracted method to delete S3 images from a model with given path(s)
