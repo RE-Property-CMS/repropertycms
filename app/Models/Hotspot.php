@@ -15,6 +15,6 @@ class Hotspot extends Model
 
     public function propertyImages()
     {
-        return $this->belongsToMany(Property_images::class, 'hotspot_property_images');
+        return $this->belongsToMany(PropertyImages::class, 'hotspot_property_images');
     }
 }

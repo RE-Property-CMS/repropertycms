@@ -343,6 +343,19 @@ class SettingsController extends Controller
         return view('admin.settings.brand', compact('brand'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Help & Documentation
+    |--------------------------------------------------------------------------
+    */
+
+    public function docs()
+    {
+        $readmePath = base_path('README.md');
+        $markdown = file_exists($readmePath) ? file_get_contents($readmePath) : '# Documentation not found.';
+        return view('admin.settings.docs', compact('markdown'));
+    }
+
     public function saveBrand(Request $request)
     {
         $request->validate([

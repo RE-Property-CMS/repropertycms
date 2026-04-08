@@ -15,6 +15,6 @@ class PropertySlider extends Model
 
     public function property_images()
     {
-        return $this->belongsTo(Property_images::class, 'image_id', 'id');
+        return $this->belongsTo(PropertyImages::class, 'image_id', 'id');
     }
 }

@@ -19,6 +19,6 @@ class PropertyGalleryImages extends Model
 
     public function property_images()
     {
-        return $this->belongsTo(Property_images::class, 'property_image_id', 'id');
+        return $this->belongsTo(PropertyImages::class, 'property_image_id', 'id');
     }
 }

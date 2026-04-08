@@ -12,7 +12,9 @@ class Payments extends Model
 
     protected $table = 'payments';
 
-    protected $primarykey = 'id';
+    protected $primaryKey = 'id';
+
+    protected $guarded = [];
 
     public function agent()
     {

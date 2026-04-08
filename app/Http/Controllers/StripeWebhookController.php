@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agents;
 use App\Models\Backend\Admin;
+use App\Models\Payments;
 use App\Models\Plan;
 use App\Models\Subscription;
 use Carbon\Carbon;
@@ -68,6 +69,12 @@ class StripeWebhookController extends Controller
                 $subscription = $event->data->object;
                 Log::info('Handling customer.subscription.deleted', ['subscription_id' => $subscription->id]);
                 $this->handleSubscriptionDeleted($subscription);
+                break;
+
+            case 'invoice.payment_succeeded':
+                $invoice = $event->data->object;
+                Log::info('Handling invoice.payment_succeeded', ['invoice_id' => $invoice->id]);
+                $this->handleInvoicePaymentSucceeded($invoice);
                 break;
 
             default:
@@ -178,6 +185,40 @@ class StripeWebhookController extends Controller
                 }
             }
         }
+    }
+
+    protected function handleInvoicePaymentSucceeded($invoice)
+    {
+        // Skip $0 invoices (e.g. trial starts)
+        if ($invoice->amount_paid === 0) {
+            return;
+        }
+
+        $agent = Agents::where('customer_id', $invoice->customer)->first();
+        if (! $agent) {
+            Log::warning('invoice.payment_succeeded: agent not found', ['customer' => $invoice->customer]);
+            return;
+        }
+
+        $priceId = $invoice->lines->data[0]->price->id ?? null;
+        $plan    = $priceId ? Plan::where('stripe_plan_id', $priceId)->first() : null;
+
+        Payments::create([
+            'agent_id'     => $agent->id,
+            'plan_id'      => $plan?->id ?? 0,
+            'payment_date' => now()->toDateString(),
+            'payment_id'   => $invoice->id,
+            'amount'       => $invoice->amount_paid / 100,
+            'currency'     => strtoupper($invoice->currency),
+            'status'       => 'Paid',
+            'active'       => true,
+        ]);
+
+        Log::info('Payment recorded', [
+            'agent_id'   => $agent->id,
+            'invoice_id' => $invoice->id,
+            'amount'     => $invoice->amount_paid / 100,
+        ]);
     }
 
     protected function handleSubscriptionDeleted($subscription)
