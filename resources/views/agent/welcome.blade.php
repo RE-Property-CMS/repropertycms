@@ -1,13 +1,13 @@
 @extends('layouts.agents.default1')
 
-@section('title', 'Welcome to Realty Interface')
+@section('title', 'Welcome to ' . config('app.name'))
 
 @section('content')
 
     <div class="w-full py-5">
         <div class="pb-5">
             <div class="page-heading">
-                <h3 class="mb-0 text-center">Welcome to Realty Interface, {{ auth()->user()->first_name }}!</h3>
+                <h3 class="mb-0 text-center">Welcome to {{ config('app.name') }}, {{ auth()->user()->first_name }}!</h3>
             </div>
         </div>
 

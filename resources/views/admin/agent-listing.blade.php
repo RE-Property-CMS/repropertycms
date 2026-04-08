@@ -23,7 +23,7 @@
 
                         <td>{{$row['email']}}</td>
 
-                        <td>{{$row['created_at']}}</td>
+                        <td>{{ $row->created_at?->format('d M Y') }}</td>
 
                         <td class="text-center">
                             @if($row['active'] == 1)

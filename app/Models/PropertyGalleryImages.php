@@ -13,6 +13,8 @@ class PropertyGalleryImages extends Model
 
     protected $primarykey = 'id';
 
+    protected $guarded = [];
+
     protected $with = ['property_images'];
 
     public function property_images()

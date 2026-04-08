@@ -7,6 +7,7 @@
 
 
 <body class="app sidebar-mini ltr light-mode">
+@include('includes.preloader')
 <!-- Flash message -->
 @include('flash-message')
 
@@ -45,13 +46,9 @@
                                            class="button button-cyan py-1 px-2 mb-1 block" target="_blank">
                                             <i class="fa fa-eye mr-2"></i> Property Preview
                                         </a>
-                                        <a href="https://realtyinterface.com/learn"
+                                        <a href="#"
                                            class="button button-blue py-1 px-2 mb-1 block" target="_blank">
                                             <i class="fa fa-eye mr-2"></i> Tutorials
-                                        </a>
-                                        <a href="https://app.realtyinterface.com/101505-valhalla-drive"
-                                           class="button button-purple py-1 px-2 mb-1 block" target="_blank">
-                                            <i class="fa fa-eye mr-2"></i> Website Example
                                         </a>
                                     </div>
                                 @else

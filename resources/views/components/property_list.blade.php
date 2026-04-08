@@ -1,64 +1,135 @@
 @props([
-	'property'
+    'property'
 ])
-@php
-$color = '#0069a6';
-@endphp
-<div class="container mb-5" x-data="{ confirmDeleteId: null }">
-    <div class="d-flex align-items-center mb-3">
-        <p class="ml-4 font-bold text-lg" style="color: #4b4b4b">
-            <i class="fa fa-home mr-2" style="color: grey"></i> Properties
-        </p>
-        <span class="badge border ml-5 px-2 rounded-sm shadow-lg bg-light" style="min-width: 20px; font-weight: 500; font-size: 0.875rem; border-color: #d5d4d4">
-            {{ $property->count() }}
-        </span>
-    </div>
 
+<style>
+    .prop-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        background: #f3f4f6;
+        color: #374151;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+    .prop-action-btn:hover { background: #e5e7eb; color: #111827; text-decoration: none; }
+    .prop-action-btn.edit   { background: #eff6ff; color: #2563eb; }
+    .prop-action-btn.edit:hover { background: #dbeafe; }
+    .prop-action-btn.preview { background: #f0fdf4; color: #16a34a; }
+    .prop-action-btn.preview:hover { background: #dcfce7; }
+    .prop-action-btn.share  { background: #f5f3ff; color: #7c3aed; }
+    .prop-action-btn.share:hover { background: #ede9fe; }
+    .prop-action-btn.publish { background: #eff6ff; color: #0284c7; }
+    .prop-action-btn.publish:hover { background: #bae6fd; }
+    .prop-action-btn.delete { background: #fef2f2; color: #dc2626; }
+    .prop-action-btn.delete:hover { background: #fee2e2; }
+    .prop-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        background: #fff;
+        transition: box-shadow 0.2s, transform 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .prop-card:hover {
+        box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        transform: translateY(-2px);
+    }
+</style>
 
-    <div class="d-flex flex-wrap gap-3 mb-5" style="display: flex; flex-wrap: wrap; gap: 15px;">
-        @if ($property->count() > 0)
+<div x-data="{ confirmDeleteId: null }">
+
+    @if($property->count() > 0)
+        <div class="row" style="row-gap: 20px;">
             @foreach($property as $row)
-                <div style="width: calc(25% - 15px); min-width: 250px;" class="text-center">
-                    <div class="card shadow-lg mb-4" style="width: 300px; height: 350px;">
-                        <div class="card-body align-items-center p-2">
-                            <div style="width: 100%; height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                @if($row->property_images->first())
-                                    <img src="{{ asset_s3($row->property_images->first()->thumb) }}" class="card-img-top" alt="Property Image" style="width: 100%; height: 100%; object-fit: cover;">
-                                @else
-                                    <img src="{{ asset('images/placeholder-chalet-exterior.jpg') }}" class="card-img-top" alt="Property Image" style="width: 100%; height: 100%; object-fit: cover;">
-                                @endif
-                            </div>
-                            <h5 class="card-title text-center mt-3" style="color: #0b0b0b;">{{ $row->address_line_1 }}</h5>
-                        </div>
-                    </div>
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <div class="prop-card">
 
-                    <div class="mt-2">
-                        @if(!$row->published)
-                            <button wire:click="publishProperty({{ $row->id }})" class="ml-10 text-lg mt-2" style="color: {{ $color }};">
-                                Publish Property
-                            </button><br>
-                            <button type="button" @click="confirmDeleteId = {{ $row->id }}" class="ml-10 text-lg mt-3 mb-4" style="color: {{ $color }};">
-                                Delete Property
-                            </button><br>
-                        @endif
-                        <a href="{{ url('agent/property/address/' . $row->id) }}" class="ml-10 text-lg" style="display: inline-block; margin-bottom: 13px !important; color: {{ $color }};">
-                            Edit Property
-                        </a><br>
-                        <a href="{{ url($row->unique_url) }}" target="_blank" class="ml-10 text-lg" style="display: inline-block; margin-bottom: 10px !important; color: {{ $color }};">
-                            Preview Property
-                        </a><br>
-                        @if(!$row->published)
-                            <a href="{{ url('share/' . $row->unique_url) }}" target="_blank" class="ml-10 text-lg" style="display: inline-block; margin-bottom: 10px !important; color: {{ $color }};">
-                                Share Unpublished Property
-                            </a><br>
-                        @endif
+                        {{-- Image --}}
+                        <div style="position:relative;height:190px;overflow:hidden;flex-shrink:0;">
+                            @if($row->property_images->first())
+                                <img src="{{ asset_s3($row->property_images->first()->thumb) }}"
+                                     alt="{{ $row->name }}"
+                                     style="width:100%;height:100%;object-fit:cover;">
+                            @else
+                                <div style="width:100%;height:100%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;">
+                                    <i class="fa fa-home" style="font-size:2.5rem;color:#d1d5db;"></i>
+                                </div>
+                            @endif
+
+                            {{-- Status pill --}}
+                            <span style="position:absolute;top:10px;left:10px;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:0.4px;
+                                {{ $row->published
+                                    ? 'background:rgba(220,252,231,0.95);color:#15803d;'
+                                    : 'background:rgba(254,249,195,0.95);color:#92400e;' }}">
+                                {{ $row->published ? 'Published' : 'Draft' }}
+                            </span>
+
+                            {{-- Price --}}
+                            @if(!empty($row->price))
+                                <span style="position:absolute;bottom:10px;right:10px;padding:4px 10px;border-radius:20px;font-size:0.76rem;font-weight:700;background:rgba(0,0,0,0.55);color:#fff;backdrop-filter:blur(2px);">
+                                    ${{ $row->price }}
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Body --}}
+                        <div style="padding:14px 14px 10px;flex:1;">
+                            <h6 style="font-weight:700;margin-bottom:4px;font-size:0.88rem;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                {{ $row->name ?: $row->address_line_1 }}
+                            </h6>
+                            <p style="font-size:0.76rem;color:#9ca3af;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                <i class="fa fa-map-marker-alt" style="margin-right:4px;"></i>{{ $row->address_line_1 }}{{ !empty($row->city) ? ', ' . $row->city : '' }}
+                            </p>
+                        </div>
+
+                        {{-- Actions --}}
+                        <div style="padding:10px 12px 12px;border-top:1px solid #f3f4f6;display:flex;flex-wrap:wrap;gap:5px;">
+                            <a href="{{ url('agent/property/address/' . $row->id) }}"
+                               class="prop-action-btn edit">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url($row->unique_url) }}" target="_blank"
+                               class="prop-action-btn preview">
+                                <i class="fa fa-eye"></i> Preview
+                            </a>
+                            @if(!$row->published)
+                                <a href="{{ url('share/' . $row->unique_url) }}" target="_blank"
+                                   class="prop-action-btn share">
+                                    <i class="fa fa-share-alt"></i> Share
+                                </a>
+                                <button wire:click="publishProperty({{ $row->id }})"
+                                        class="prop-action-btn publish">
+                                    <i class="fa fa-globe"></i> Publish
+                                </button>
+                                <button type="button" @click="confirmDeleteId = {{ $row->id }}"
+                                        class="prop-action-btn delete">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            @endif
+                        </div>
+
                     </div>
                 </div>
             @endforeach
-        @else
-            <p class="text-center">No Properties Found.</p>
-        @endif
-    </div>
+        </div>
+    @else
+        <div style="text-align:center;padding:48px 24px;background:#fff;border-radius:12px;border:1px dashed #e5e7eb;">
+            <i class="fa fa-home" style="font-size:2.5rem;color:#d1d5db;margin-bottom:12px;display:block;"></i>
+            <p style="font-size:0.95rem;font-weight:600;color:#6b7280;margin-bottom:4px;">No properties here yet</p>
+            <p style="font-size:0.82rem;color:#9ca3af;margin:0;">Properties will appear here once added.</p>
+        </div>
+    @endif
 
     {{-- Delete Confirmation Overlay --}}
     <div x-show="confirmDeleteId !== null" x-cloak style="position:fixed;inset:0;z-index:9999;">
@@ -75,8 +146,8 @@ $color = '#0069a6';
         </div>
     </div>
 
-    {{-- Publish Confirmation Overlay (triggered from PHP via confirmPublishId) --}}
-    <div x-show="$wire.confirmPublishId !== null" x-cloak style="position:fixed;inset:0;z-index:9999;">
+    {{-- Publish Confirmation Overlay --}}
+    <div x-show="$wire.confirmPublishId != null" x-cloak style="position:fixed;inset:0;z-index:9999;">
         <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" @click="$wire.cancelConfirmPublish()"></div>
         <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
             <div style="position:relative;background:white;border-radius:12px;max-width:400px;width:90%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
@@ -89,4 +160,5 @@ $color = '#0069a6';
             </div>
         </div>
     </div>
+
 </div>

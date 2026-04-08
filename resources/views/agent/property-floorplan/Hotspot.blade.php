@@ -54,10 +54,10 @@
             {{--                        <div class="w-full py-8 px-5  inline-block relative mb-3 gallery-image d-flex align-items-center justify-content-between" id="HotspotData{{ $property_floorplan_image->property_image_id }}">--}}
             {{--                            <div class="d-flex align-items-center">--}}
             {{--                                <div class="float-left">--}}
-            {{--                                    @if($property_image->thumb && str_contains($property_image->thumb, 'realtyinterface.s3.amazonaws.com'))--}}
+            {{--                                    @if($property_image->thumb && str_contains($property_image->thumb, 's3.amazonaws.com'))--}}
             {{--                                        <img src="{{$property_image->thumb}}" style="max-height:100px;" alt="">--}}
             {{--                                    @else--}}
-            {{--                                        @if(str_contains($property_image->file_name, 'realtyinterface.s3.amazonaws.com'))--}}
+            {{--                                        @if(str_contains($property_image->file_name, 's3.amazonaws.com'))--}}
             {{--                                            <img src="{{$property_image->file_name}}" style="max-height:100px;" alt="">--}}
             {{--                                        @else--}}
             {{--                                            <img src="{{asset('files/property_images/' . $property_floorplan_image->property_id . '/' . $property_image->file_name)}}" style="max-height:100px;" alt="">--}}
@@ -68,7 +68,7 @@
             {{--                                    @php--}}
             {{--                                        //                                        dd($property_image->file_name);--}}
             {{--                                                                                    $fileName = $property_image->file_name;--}}
-            {{--                                                                                    if(str_contains($property_image->file_name, 'realtyinterface.s3.amazonaws.com')){--}}
+            {{--                                                                                    if(str_contains($property_image->file_name, 's3.amazonaws.com')){--}}
             {{--                                                                                        $propertyFloorImg = explode('property_images/', $property_image->file_name);--}}
             {{--                                                                                        $fileName = $propertyFloorImg[1];--}}
             {{--                                                                                    }--}}

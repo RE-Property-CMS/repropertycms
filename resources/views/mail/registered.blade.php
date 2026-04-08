@@ -2,7 +2,7 @@ Hi Admin,
 
 <br/><br/>
 
-New Agent {{ $name }} registered with app.realtyInterface.com
+New Agent {{ $name }} registered with {{ config('app.name') }}
 <br/><br/>
 
 For your reference the details submitted given below:<br/>

@@ -25,6 +25,34 @@
         </div>
     @endif
 
+    @if(session('demo_success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)" x-transition
+            style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:10px;margin-bottom:20px;">
+            <svg style="width:18px;height:18px;color:#2563eb;flex-shrink:0;margin-top:1px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+            <div style="flex:1;">
+                <div style="font-weight:600;font-size:13px;color:#1d4ed8;">Demo Data</div>
+                <div style="font-size:13px;color:#1e40af;">{{ session('demo_success') }}</div>
+            </div>
+            <button @click="show=false" style="color:#93c5fd;background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0;">&times;</button>
+        </div>
+    @endif
+
+    @if(session('demo_error'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)" x-transition
+            style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;border-radius:10px;margin-bottom:20px;">
+            <svg style="width:18px;height:18px;color:#dc2626;flex-shrink:0;margin-top:1px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <div style="flex:1;">
+                <div style="font-weight:600;font-size:13px;color:#991b1b;">Demo Data</div>
+                <div style="font-size:13px;color:#7f1d1d;">{{ session('demo_error') }}</div>
+            </div>
+            <button @click="show=false" style="color:#fca5a5;background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0;">&times;</button>
+        </div>
+    @endif
+
     {{-- Status overview bar --}}
     @php
         $configured = collect($statuses)->filter()->count();
@@ -224,10 +252,100 @@
             </div>
         </div>
 
+        {{-- Demo Data --}}
+        <div style="background:white;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.2s;grid-column:1/-1;"
+            onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+            <div style="padding:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div style="width:44px;height:44px;background:#eff6ff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg style="width:20px;height:20px;color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </div>
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-weight:600;font-size:14px;color:#111827;">Demo Data</div>
+                    <div style="font-size:12px;color:#6b7280;margin-top:1px;">Populate the site with a sample agent and 8 luxury listings to preview the platform. Listings are created unpublished — subscription required to go live.</div>
+
+                    @if($demoExists)
+                    <div style="display:inline-flex;align-items:center;gap:16px;margin-top:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;">Email</span>
+                            <code style="font-size:12px;color:#1e40af;background:#eff6ff;padding:2px 8px;border-radius:4px;user-select:all;">demo.agent@demo.reproperty.local</code>
+                        </div>
+                        <div style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;"></div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;">Password</span>
+                            <code style="font-size:12px;color:#1e40af;background:#eff6ff;padding:2px 8px;border-radius:4px;user-select:all;">Demo@12345!</code>
+                        </div>
+                        <div style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;"></div>
+                        <span style="font-size:11px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:9999px;font-weight:500;">Active</span>
+                    </div>
+                    @endif
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                    <form method="POST" action="{{ route('admin.demo.seed') }}" style="margin:0;"
+                        onsubmit="return demoSubmit(event, 'This will create a demo agent with 8 high-end luxury listings (all unpublished). Continue?', 'Seeding demo data\u2026', 'Creating listings, images and amenities — this may take a few seconds.', '#2563eb')">
+                        @csrf
+                        <button type="submit" id="btn-seed"
+                            style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:white;color:#2563eb;border:1px solid #2563eb;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background 0.15s;"
+                            onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='white'">
+                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Seed Demo
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.demo.reset') }}" style="margin:0;"
+                        onsubmit="return demoSubmit(event, 'This will permanently delete the demo agent and all their listings. Continue?', 'Resetting demo data\u2026', 'Removing the demo agent and all linked properties.', '#dc2626')">
+                        @csrf
+                        <button type="submit" id="btn-reset"
+                            style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:white;color:#dc2626;border:1px solid #dc2626;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background 0.15s;"
+                            onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
+                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Reset Demo
+                        </button>
+                    </form>
+                </div>
+
+                {{-- Loading overlay --}}
+                <div id="demo-overlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.88);backdrop-filter:blur(3px);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+                    <div id="demo-spinner" style="width:46px;height:46px;border-radius:50%;border:4px solid #e5e7eb;border-top-color:#2563eb;animation:demo-spin .75s linear infinite;"></div>
+                    <div id="demo-overlay-title" style="font-size:16px;font-weight:700;color:#111827;"></div>
+                    <div id="demo-overlay-sub" style="font-size:13px;color:#6b7280;"></div>
+                    <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Please wait — do not close this page</div>
+                </div>
+                <style>@keyframes demo-spin { to { transform:rotate(360deg); } }</style>
+            </div>
+        </div>
+
     </div>
 
 @stop
 
 @push('scripts')
 <script src="//unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+function demoSubmit(event, confirmMsg, title, sub, accentColor) {
+    if (!confirm(confirmMsg)) return false;
+
+    // Disable both buttons to prevent double-submit
+    ['btn-seed', 'btn-reset'].forEach(function(id) {
+        var btn = document.getElementById(id);
+        if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
+    });
+
+    // Style spinner to match the action colour
+    var spinner = document.getElementById('demo-spinner');
+    if (spinner) spinner.style.borderTopColor = accentColor;
+
+    document.getElementById('demo-overlay-title').textContent = title;
+    document.getElementById('demo-overlay-sub').textContent = sub;
+
+    var overlay = document.getElementById('demo-overlay');
+    overlay.style.display = 'flex';
+
+    return true; // allow form to submit
+}
+</script>
 @endpush

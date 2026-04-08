@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ ! empty( $property ) ? $property->name : "RealtyInterface" }} - Property Site</title>
+    <title>{{ ! empty( $property ) ? $property->name : config('app.name') }} - Property Site</title>
 
     <link rel="stylesheet" href="{{ asset('css/tailwind.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,6 +36,7 @@
 </head>
 
 <body class="font-body">
+@include('includes.preloader')
 
 <!-- home section -->
 <section class="bg-gray-800 py-10 md:mb-10">
@@ -108,10 +109,8 @@
                     <img src="{{ asset('images/logo-placeholder.png') }}" width="150px" alt="Image">
                 </div>
 
-                <p class="font-light text-gray-400 text-md md:text-lg text-center lg:text-left">Realty Interface
-                    &copy; {{ date('Y') }}<br/>
-                    Avila Homes LLC<br/>
-                    Puyallup, WASHINGTON</p>
+                <p class="font-light text-gray-400 text-md md:text-lg text-center lg:text-left">{{ config('app.name') }}
+                    &copy; {{ date('Y') }}</p>
 
                 <div class="flex items-center justify-center lg:justify-start space-x-5">
                     <a href="#"
@@ -149,15 +148,15 @@
             <div class="text-center lg:text-left space-y-7 mb-10 lg:mb-0">
                 <h4 class="font-semibold text-white text-lg md:text-2xl">Legal</h4>
 
-                <a href="https://www.realtyinterface.com/terms-of-service"
+                <a href="{{ route('termsAndConditions') }}"
                    class="block font-light text-gray-400 text-sm md:text-lg hover:text-blue-800 transition ease-in-out duration-300">Privacy
                     Policy</a>
 
-                <a href="https://www.realtyinterface.com/terms-of-service"
+                <a href="{{ route('termsAndConditions') }}"
                    class="block font-light text-gray-400 text-sm md:text-lg hover:text-blue-800 transition ease-in-out duration-300">Terms
                     & Conditions</a>
 
-                <a href="https://www.realtyinterface.com/terms-of-service"
+                <a href="{{ route('termsAndConditions') }}"
                    class="block font-light text-gray-400 text-sm md:text-lg hover:text-blue-800 transition ease-in-out duration-300">DMCA</a>
             </div>
 

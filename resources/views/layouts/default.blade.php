@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <!-- TITLE -->
-    <title>{{ ! empty( $property ) ? $property->name : "RealtyInterface" }} - Property Site </title>
+    <title>{{ ! empty( $property ) ? $property->name : config('app.name') }} - Property Site </title>
 
     <!-- add style for emded youtube video -->
     <x-embed-styles/>
@@ -95,6 +95,7 @@
 
 </style>
 <body>
+@include('includes.preloader')
 <div class="container-fluid p-0">
 
     <!-- Display Content -->

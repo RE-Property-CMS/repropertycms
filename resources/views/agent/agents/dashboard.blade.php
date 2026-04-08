@@ -6,4 +6,4 @@
 
     @livewire('agent.dashboard')
 
-@stop
+@endsection

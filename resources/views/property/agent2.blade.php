@@ -6,7 +6,7 @@
                 <!-- Dispaly Agent Pofile photo here -->
                 @if(!is_null($agents->profile_image))
                     <div class="border-0 mb-3 agent-image text-center">
-                        @if(str_contains($agents->profile_image, 'realtyinterface.s3.amazonaws.com'))
+                        @if(str_starts_with($agents->profile_image, 'http'))
                             <img src="{{$agents->profile_image}}" class="d-block w-100 h-100">
                         @else
                             <img src="{{asset('/files/agents/')}}/{{$agents->id}}/{{$agents->profile_image}}"
@@ -68,7 +68,7 @@
                 <!-- Dispaly Agent logo here -->
                 @if(!is_null($agents->logo_image))
                     <span>
-                            @if(str_contains($agents->logo_image, 'realtyinterface.s3.amazonaws.com'))
+                            @if(str_starts_with($agents->logo_image, 'http'))
                             <img src="{{$agents->logo_image}}" class="pb-3 my-4 agent_logo" alt="">
                         @else
                             <img src="{{asset('/files/agents/')}}/{{$agents->id}}/{{$agents->logo_image}}"

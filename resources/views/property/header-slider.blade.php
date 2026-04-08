@@ -1,6 +1,8 @@
 <div class="col-md-12 p-0 position-relative main-banner">
     @if($property->main_section == \App\Enums\BannerType::Image)
-        <img src="{{asset_s3($property_topbar_images->file_name)}}" class="w-100" alt="">
+        @if($property_topbar_images)
+            <img src="{{asset_s3($property_topbar_images->file_name)}}" class="w-100" alt="">
+        @endif
     @elseif($property->main_section == \App\Enums\BannerType::Slider)
         <x-property.slider :property_slider="$property_slider"/>
     @elseif($property->main_section == \App\Enums\BannerType::Video)

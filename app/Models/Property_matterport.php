@@ -12,4 +12,6 @@ class Property_matterport extends Model
     protected $table = 'property_matterport';
 
     protected $primarykey = 'id';
+
+    protected $guarded = [];
 }

@@ -13,6 +13,8 @@ class PropertyGalleries extends Model
 
     protected $primarykey = 'id';
 
+    protected $guarded = [];
+
     public function property_gallery_images()
     {
         return $this->hasMany(PropertyGalleryImages::class, 'gallery_id', 'id');

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Backend\DemoSeederController;
+use App\Models\Agents;
 use App\Services\EnvService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +33,9 @@ class SettingsController extends Controller
             'captcha' => $integrations['captcha'] ?? false,
         ];
 
-        return view('admin.settings.index', compact('statuses'));
+        $demoExists = Agents::where('email', DemoSeederController::DEMO_EMAIL)->exists();
+
+        return view('admin.settings.index', compact('statuses', 'demoExists'));
     }
 
     /*
@@ -352,6 +356,11 @@ class SettingsController extends Controller
             'font_admin'      => 'required|string|max:100',
             'logo'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'favicon'         => 'nullable|file|mimes:ico,png,jpg,jpeg,svg|max:512',
+            'website_url'     => 'nullable|url|max:255',
+            'instagram_url'   => 'nullable|url|max:255',
+            'facebook_url'    => 'nullable|url|max:255',
+            'twitter_url'     => 'nullable|url|max:255',
+            'linkedin_url'    => 'nullable|url|max:255',
         ]);
 
         $data = [
@@ -363,6 +372,11 @@ class SettingsController extends Controller
             'font_body'       => $request->font_body,
             'font_heading'    => $request->font_heading,
             'font_admin'      => $request->font_admin,
+            'website_url'     => $request->website_url ?: null,
+            'instagram_url'   => $request->instagram_url ?: null,
+            'facebook_url'    => $request->facebook_url ?: null,
+            'twitter_url'     => $request->twitter_url ?: null,
+            'linkedin_url'    => $request->linkedin_url ?: null,
             'updated_at'      => now(),
             'created_at'      => now(),
         ];

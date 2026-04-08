@@ -40,7 +40,7 @@ class AgentSubscriptionRenewed extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your RealtyInterface Subscription Renewed!')
+            ->subject('Your '.config('app.name').' Subscription Renewed!')
             ->view('mail.admin_subscription_renewal', ['agent' => $this->agent,
                 'renewalDate' => Carbon::parse($this->subscription->current_period_end)->format('d M Y')]);
 
@@ -55,7 +55,7 @@ class AgentSubscriptionRenewed extends Notification
     {
         return [
             'title' => 'Subscription Renewed!',
-            'message' => 'Your subscription to RealtyInterface has been renewed.',
+            'message' => 'Your subscription to '.config('app.name').' has been renewed.',
             'icon' => 'heroicon-o-gift', // Or any icon you prefer
             'icon_color' => 'text-green-500', // Choose a suitable color
             'url' => route('agent.billing'),  // Link to billing or dashboard

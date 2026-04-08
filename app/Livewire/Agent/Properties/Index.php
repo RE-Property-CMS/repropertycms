@@ -15,8 +15,6 @@ class Index extends Component
     use LivewireAlert;
 
     public $agent;
-    public $confirmPublishId = null;
-
     public function publishProperty($id)
     {
         $activeSubscription = $this->agent->hasActiveSubscription();
@@ -26,7 +24,7 @@ class Index extends Component
             if ($plan) {
                 $publishedPropertiesCount = Properties::where('agent_id', $this->agent->id)->where('published', 1)->count();
                 if ($plan->credits > $publishedPropertiesCount) {
-                    $this->confirmPublishId = $id;
+                    $this->dispatch('show-publish-confirm', id: $id);
                 } else {
                     $this->alert('error', 'You already have used full credit. To Publish more property, please Upgrade your plan.', [
                         'toast' => true,
@@ -41,23 +39,18 @@ class Index extends Component
         return $this->dispatch('open-agent-plans');
     }
 
-    public function doPublishProperty()
+    public function doPublishProperty($id)
     {
-        $property = Properties::find($this->confirmPublishId);
+        $property = Properties::find($id);
         if ($property) {
             $property->update([
                 'published' => true,
+                'reviewed'  => true,
                 'publish_date' => Carbon::now(),
             ]);
             $this->alert('success', 'Property published successfully!', ['toast' => true]);
             $this->dispatch('refresh');
         }
-        $this->confirmPublishId = null;
-    }
-
-    public function cancelConfirmPublish()
-    {
-        $this->confirmPublishId = null;
     }
 
     public function doDeleteProperty($id)

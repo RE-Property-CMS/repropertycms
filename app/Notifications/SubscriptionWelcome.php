@@ -36,9 +36,9 @@ class SubscriptionWelcome extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Welcome to RealtyInterface!')
+            ->subject('Welcome to '.config('app.name').'!')
             ->greeting('Hello '.$this->agent->first_name) // Access agent data
-            ->line('Welcome to RealtyInterface! Your subscription is complete.')
+            ->line('Welcome to '.config('app.name').'! Your subscription is complete.')
             ->line('Thank you for using our application!');
     }
 

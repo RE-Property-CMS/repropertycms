@@ -17,5 +17,12 @@ class BrandSettings extends Model
         'font_body',
         'font_heading',
         'font_admin',
+        'logo_path',
+        'favicon_path',
+        'website_url',
+        'instagram_url',
+        'facebook_url',
+        'twitter_url',
+        'linkedin_url',
     ];
 }

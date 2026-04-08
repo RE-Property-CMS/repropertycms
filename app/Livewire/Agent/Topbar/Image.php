@@ -16,7 +16,7 @@ class Image extends Component
 
     public bool $show = false;
 
-    public $property_images;
+    public $property_images = [];
 
     public $property;
 

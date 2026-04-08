@@ -31,7 +31,7 @@ class ContactAgentMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New contact request received on RealtyInterface.com',
+            subject: 'New contact request received on '.config('app.name'),
         );
     }
 

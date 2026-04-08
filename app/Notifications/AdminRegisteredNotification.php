@@ -37,9 +37,9 @@ class AdminRegisteredNotification extends Notification
     {
         return (new MailMessage)
             ->line('The introduction to the notification.')
-            ->subject('New user registered on RealtyInterface.com')
+            ->subject('New user registered on '.config('app.name'))
             ->greeting('Hello Admin')
-            ->line('A new agent registered on RealtyInterface.com.')
+            ->line('A new agent registered on '.config('app.name').'.')
             ->line('Agent Name: '.$this->agent->first_name.' '.$this->agent->last_name)
             ->line('Agent Email: '.$this->agent->email)
             ->action('View Agent', route('admin.agentListing'))

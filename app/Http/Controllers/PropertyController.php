@@ -54,7 +54,7 @@ class PropertyController extends Controller
             Mail::send('mail.contact-agent', $data, function ($message) use ($agent) {
                 $message->to($agent->email);
                 $message->replyTo($agent['userEmail']);
-                $message->subject('New contact request received on RealtyInterface.com');
+                $message->subject('New contact request received on '.config('app.name'));
             });
 
             $data = [];

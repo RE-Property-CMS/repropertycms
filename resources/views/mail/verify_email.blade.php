@@ -321,7 +321,7 @@
                                                             <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                                                                 <tr>
                                                                     <td valign="top" style="padding: 35px 0px 0px 0px;">
-                                                                        <a class="pc-font-alt" href="https://www.instagram.com/realtyinterface/" style="text-decoration: none;">
+                                                                        <a class="pc-font-alt" href="{{ cache('brand_settings')?->instagram_url ?? '#' }}" style="text-decoration: none;">
                                                                             <img src="{{ asset('images/email-follow-us.png') }}" width="600" height="auto" alt="" style="display: block; outline: 0; line-height: 100%; -ms-interpolation-mode: bicubic; width: 100%; height: auto; border: 0;" />
                                                                         </a>
                                                                     </td>
@@ -360,7 +360,7 @@
                                                                                                             <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation">
                                                                                                                 <tr>
                                                                                                                     <td valign="top">
-                                                                                                                        <a class="pc-font-alt" href="https://www.instagram.com/realtyinterface/" style="text-decoration: none;">
+                                                                                                                        <a class="pc-font-alt" href="{{ cache('brand_settings')?->instagram_url ?? '#' }}" style="text-decoration: none;">
                                                                                                                             <img src="{{ asset('images/icon-instagram.png') }}" class="" width="20" height="20" style="display: block; border: 0; outline: 0; line-height: 100%; -ms-interpolation-mode: bicubic; width: 20px; height: 20px;" alt="" />
                                                                                                                         </a>
                                                                                                                     </td>
@@ -387,7 +387,7 @@
                                                                                     <div class="pc-font-alt" style="text-decoration: none;">
                                                                                         <div style="font-size: 14px;line-height: 20px;text-align:center;text-align-last:center;color:#d8d8d8;letter-spacing:-0.2px;font-weight:400;font-style:normal;font-variant-ligatures:normal;">
                                                                                             <div><span style="font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 14px; line-height: 20px; text-decoration: none; text-transform: none;">Gig Harbor, Washington</span>
-                                                                                                <br><span style="font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 14px; line-height: 20px; text-decoration: none; text-transform: none;">Realty Interface ©2023</span>
+                                                                                                <br><span style="font-family: 'Fira Sans', Arial, Helvetica, sans-serif; font-size: 14px; line-height: 20px; text-decoration: none; text-transform: none;">{{ config('app.name') }} &copy;{{ date('Y') }}</span>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -412,8 +412,8 @@
                                                                                                             <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                                                                                                                 <tr>
                                                                                                                     <td align="center" valign="top" style="padding: 0px 50px 20px 50px;">
-                                                                                                                        <a class="pc-font-alt" href="https://www.realtyinterface.com/" target="_blank" style="text-decoration: none;">
-                                                                                                                            <img src="{{ asset('images/logo-placeholder.png') }}" width="130" height="auto" alt="Realty Interface Luxury Websites" style="display: block; outline: 0; line-height: 100%; -ms-interpolation-mode: bicubic; width: 52%; height: auto; border: 0;" />
+                                                                                                                        <a class="pc-font-alt" href="{{ cache('brand_settings')?->website_url ?? url('/') }}" target="_blank" style="text-decoration: none;">
+                                                                                                                            <img src="{{ asset('images/logo-placeholder.png') }}" width="130" height="auto" alt="{{ config('app.name') }}" style="display: block; outline: 0; line-height: 100%; -ms-interpolation-mode: bicubic; width: 52%; height: auto; border: 0;" />
                                                                                                                         </a>
                                                                                                                     </td>
                                                                                                                 </tr>

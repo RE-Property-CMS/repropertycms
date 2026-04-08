@@ -223,6 +223,43 @@
                 </div>
             </div>
 
+            {{-- Social Media Links --}}
+            <div style="padding:24px;border-top:1px solid #f3f4f6;">
+                <div style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:18px;display:flex;align-items:center;gap:7px;">
+                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    Social Media &amp; Links
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    @php
+                        $socials = [
+                            ['name' => 'website_url',   'label' => 'Website URL',   'placeholder' => 'https://yourwebsite.com',          'icon' => 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064'],
+                            ['name' => 'instagram_url', 'label' => 'Instagram URL', 'placeholder' => 'https://instagram.com/yourhandle',   'icon' => 'M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01'],
+                            ['name' => 'facebook_url',  'label' => 'Facebook URL',  'placeholder' => 'https://facebook.com/yourpage',      'icon' => 'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z'],
+                            ['name' => 'twitter_url',   'label' => 'X / Twitter URL','placeholder' => 'https://x.com/yourhandle',          'icon' => 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z'],
+                            ['name' => 'linkedin_url',  'label' => 'LinkedIn URL',  'placeholder' => 'https://linkedin.com/company/yours', 'icon' => 'M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z'],
+                        ];
+                    @endphp
+                    @foreach($socials as $social)
+                        <div>
+                            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#374151;margin-bottom:6px;">
+                                <svg style="width:14px;height:14px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $social['icon'] }}"/></svg>
+                                {{ $social['label'] }}
+                            </label>
+                            <input type="url" name="{{ $social['name'] }}"
+                                value="{{ old($social['name'], $brand->{$social['name']} ?? '') }}"
+                                placeholder="{{ $social['placeholder'] }}"
+                                style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#8b5cf6';this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.1)'"
+                                onblur="this.style.borderColor='#d1d5db';this.style.boxShadow='none'">
+                            @error($social['name'])
+                                <span style="font-size:11px;color:#dc2626;">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endforeach
+                </div>
+                <p style="font-size:11px;color:#9ca3af;margin-top:12px;">These links appear in email footers and other branded communications. Leave blank to omit.</p>
+            </div>
+
             {{-- Footer --}}
             <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-top:1px solid #f3f4f6;">
                 <a href="{{ route('admin.settings.index') }}" style="font-size:13px;color:#6b7280;text-decoration:none;display:inline-flex;align-items:center;gap:6px;"

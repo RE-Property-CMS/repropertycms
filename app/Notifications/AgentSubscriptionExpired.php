@@ -36,10 +36,10 @@ class AgentSubscriptionExpired extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your RealtyInterface Subscription has been Cancelled')
-            ->line('Your subscription to RealtyInterface has been cancelled.')
-            ->action('Renew Your Subscription', route('agent.billing')) // Replace with your actual renewal URL
-            ->line('Thank you for using RealtyInterface!');
+            ->subject('Your '.config('app.name').' Subscription has been Cancelled')
+            ->line('Your subscription to '.config('app.name').' has been cancelled.')
+            ->action('Renew Your Subscription', route('agent.billing'))
+            ->line('Thank you for using '.config('app.name').'!');
     }
 
     /**

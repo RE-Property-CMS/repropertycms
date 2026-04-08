@@ -25,6 +25,15 @@ use App\Http\Controllers\SetupController;
 //     return view('mail.agent_registered', ['agent' => $agent]);
 // });
 
+// Error page previews — remove or restrict before production
+Route::get('/preview-error/{code}', function (string $code) {
+    $allowed = ['401', '403', '404', '419', '429', '500', '503'];
+    if (! in_array($code, $allowed)) {
+        abort(404);
+    }
+    return response()->view('errors.' . $code, [], (int) $code);
+})->name('error.preview');
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes

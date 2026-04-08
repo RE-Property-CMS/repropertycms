@@ -1,6 +1,6 @@
 <h3>Hello,</h3>
-<p>Please use the verification code below on the Realtyinterface website agent forget password :</p>
+<p>Please use the verification code below on the {{ config('app.name') }} agent forgot password page:</p>
 <h2>{{$data}}</h2>
-<p>If you don't request this. you can ignore this email or let us know.</p>
+<p>If you didn't request this, you can ignore this email or contact us.</p>
 <p>Thanks!</p>
-<p>Realtyinterface team</p>
+<p>{{ config('app.name') }} Team</p>

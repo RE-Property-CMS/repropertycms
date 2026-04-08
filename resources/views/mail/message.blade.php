@@ -1,6 +1,6 @@
 <p>Your following properties are expired today, and they are marked as unpublished.
     If you want to extend the expiry date, then please visit your Agent panel using the link:
-    <a href="https://app.realtyinterface.com/agent/">https://app.realtyinterface.com/agent/</a>
+    <a href="{{ route('agent.dashboard') }}">{{ route('agent.dashboard') }}</a>
     and publish the property again.</p>
 <table>
     <tr>

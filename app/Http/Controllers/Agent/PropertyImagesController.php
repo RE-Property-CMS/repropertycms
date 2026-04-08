@@ -153,7 +153,7 @@ class PropertyImagesController extends Controller
             $degrees = $request->degrees;
             $degrees = $degrees * -1;
 
-            if (str_contains($property_image->file_name, 'realtyinterface.s3.amazonaws.com')) {
+            if (str_starts_with($property_image->file_name, 'http')) {
                 /* $assetPath = Storage::disk('s3')->url('property_images/isem9uVyntrKHoLsFUE4P3FneeTp3tmX7e3GL0ys.jpg');
                 $extension = pathinfo($property_image->file_name, PATHINFO_EXTENSION);
                 header("Cache-Control: public");

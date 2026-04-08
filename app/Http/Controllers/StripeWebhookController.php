@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Agents;
 use App\Models\Backend\Admin;
+use App\Models\Plan;
 use App\Models\Subscription;
+use Carbon\Carbon;
 use App\Notifications\AdminSubscriptionExpired;
 use App\Notifications\AdminSubscriptionNotification;
 use App\Notifications\AdminSubscriptionRenewed;
@@ -80,15 +82,25 @@ class StripeWebhookController extends Controller
         $agent = Agents::where('customer_id', $subscription->customer)->first();
 
         if ($agent) {
+            $stripePriceId = $subscription->items->data[0]->price->id;
+            $startDate     = Carbon::createFromTimestamp($subscription->start_date);
+            $plan          = Plan::where('stripe_plan_id', $stripePriceId)->first();
+
+            if ($plan && $plan->interval === 'year') {
+                $periodEnd = $startDate->copy()->addYear();
+            } else {
+                $periodEnd = $startDate->copy()->addMonth();
+            }
+
             Subscription::create([
                 'agent_id' => $agent->id,
-                'name' => $subscription->metadata->plan,
+                'name' => $plan?->name ?? $subscription->metadata->plan ?? null,
                 'stripe_id' => $subscription->id,
                 'stripe_status' => $subscription->status,
-                'stripe_price' => $subscription->items->data[0]->price->id,
+                'stripe_price' => $stripePriceId,
                 'quantity' => $subscription->quantity,
-                'start_date' => date('Y-m-d H:i:s', $subscription->start_date),
-                'current_period_end' => date('Y-m-d H:i:s', $subscription->current_period_end),
+                'start_date' => $startDate->format('Y-m-d H:i:s'),
+                'current_period_end' => $periodEnd->format('Y-m-d H:i:s'),
             ]);
 
             $agent->notify(new \App\Notifications\SubscriptionWelcome($agent));
@@ -96,7 +108,7 @@ class StripeWebhookController extends Controller
             $adminEmail = Admin::first()?->email;
             if ($adminEmail) {
                 Notification::route('mail', $adminEmail)
-                    ->notify(new AdminSubscriptionNotification($agent));
+                    ->notify(new AdminSubscriptionNotification($agent, $subscription));
             }
         }
     }
@@ -106,10 +118,20 @@ class StripeWebhookController extends Controller
         $sub = Subscription::where('stripe_id', $subscription->id)->first();
 
         if ($sub) {
-            $sub->stripe_status = $subscription->status;
-            $sub->current_period_end = date('Y-m-d H:i:s', $subscription->current_period_end);
-            $sub->quantity = $subscription->quantity;
-            $sub->stripe_price = $subscription->plan->id;
+            $stripePriceId = $subscription->items->data[0]->price->id;
+            $plan          = Plan::where('stripe_plan_id', $stripePriceId)->first();
+            $startDate     = Carbon::parse($sub->start_date);
+
+            if ($plan && $plan->interval === 'year') {
+                $periodEnd = $startDate->copy()->addYear();
+            } else {
+                $periodEnd = $startDate->copy()->addMonth();
+            }
+
+            $sub->stripe_status      = $subscription->status;
+            $sub->current_period_end = $periodEnd->format('Y-m-d H:i:s');
+            $sub->quantity           = $subscription->quantity;
+            $sub->stripe_price       = $stripePriceId;
             $sub->save();
 
             if ($subscription->status === 'active') {
@@ -118,6 +140,12 @@ class StripeWebhookController extends Controller
                 if ($agent) {
                     $published_properties = $agent->totalPublishedPropertiesCount;
                     $activeSubscription = $agent->activeSubscription;
+
+                    if (! $activeSubscription || ! $activeSubscription->plan) {
+                        Log::warning('No active subscription or plan found for agent during subscription.updated', ['agent_id' => $agent->id]);
+                        return;
+                    }
+
                     $activePlanCredits = $activeSubscription->plan->credits;
 
                     Log::info('Agent Subscription Check', [

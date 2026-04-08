@@ -9,6 +9,7 @@ use App\Http\Controllers\Backend\PropertiesController;
 use App\Http\Controllers\Backend\SubscriberController;
 use App\Http\Controllers\Backend\PagesController;
 use App\Http\Controllers\Backend\SettingsController;
+use App\Http\Controllers\Backend\DemoSeederController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +75,8 @@ Route::namespace('Backend')->group(function () {
     |--------------------------------------------------------------------------
     */
         Route::get('subscriber', [SubscriberController::class, 'index'])->name('subscriber.index');
+        Route::get('subscriptions', [DashboardController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('revenue', [DashboardController::class, 'revenue'])->name('revenue');
 
      /*
     |--------------------------------------------------------------------------
@@ -86,6 +89,16 @@ Route::namespace('Backend')->group(function () {
             Route::get('update/{id?}', 'PagesController@update')->name('update');
             Route::get('delete', 'PagesController@delete');
             Route::get('status', 'PagesController@status');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demo Data Seeder
+    |--------------------------------------------------------------------------
+    */
+        Route::prefix('demo')->name('demo.')->group(function () {
+            Route::post('seed',  [DemoSeederController::class, 'seed'])->name('seed');
+            Route::post('reset', [DemoSeederController::class, 'reset'])->name('reset');
         });
 
     /*

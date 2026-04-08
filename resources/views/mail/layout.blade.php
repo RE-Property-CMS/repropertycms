@@ -12,7 +12,7 @@
     <link rel="mask-icon" href="https://flodesk.com/safari-pinned-tab.svg" color="#241a17"/>
     <meta name="msapplication-TileColor" content="#241a17"/>
     <meta name="theme-color" content="#FFFFFF"/>
-    <title>Welcome to Realty Interface Luxury Property Websites</title>
+    <title>Welcome to {{ config('app.name') }}</title>
 
     <!--[if !mso]><!-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -602,7 +602,7 @@
                                                                                         style="font-weight:400;">Your Order is Confirmed</span>
                                                                             </div>
                                                                             <div data-paragraph="true">We are so excited
-                                                                                to have you at Realty Interface! It is
+                                                                                to have you at {{ config('app.name') }}! It is
                                                                                 our hope that you find our property
                                                                                 websites a perfect choice for your
                                                                                 luxury estate homes.
@@ -666,7 +666,7 @@
                                                                                 <td style="border-radius:23.5px;color:#adafac;cursor:auto;text-align:center;letter-spacing:1.8px;background:transparent"
                                                                                     align="center" valign="middle"><a
                                                                                             role="button"
-                                                                                            href="https://app.realtyinterface.com/agent/sign-in"
+                                                                                            href="{{ route('login') }}"
                                                                                             style="text-decoration:none;display:block;color:#adafac;font-family:Gill Sans, sans-serif;font-size:21px;font-weight:400;line-height:21px;text-transform:none;margin:0px;padding:13px 21px;border:1px solid #adafac;border-radius:23.5px"
                                                                                             target="_blank">Sign in</a>
                                                                                 </td>
@@ -729,7 +729,7 @@
                                                                             <div data-paragraph="true">&nbsp;</div>
                                                                             <div data-paragraph="true">We have created
                                                                                 an easy to follow <a
-                                                                                        href="https://www.realtyinterface.com/resources"><span
+                                                                                        href="{{ cache('brand_settings')?->website_url ?? '#' }}"><span
                                                                                             style="color:#2ea0d2;font-weight:600;">tutorial</span></a>
                                                                                 that will guide you every step of the
                                                                                 way.
@@ -790,7 +790,7 @@
                                                                                 <td style="border-radius:23.5px;color:#adafac;cursor:auto;text-align:center;letter-spacing:1.8px;background:transparent"
                                                                                     align="center" valign="middle"><a
                                                                                             role="button"
-                                                                                            href="https://www.realtyinterface.com/learn"
+                                                                                            href="{{ cache('brand_settings')?->website_url ?? '#' }}"
                                                                                             style="text-decoration:none;display:block;color:#adafac;font-family:Gill Sans, sans-serif;font-size:21px;font-weight:400;line-height:21px;text-transform:none;margin:0px;padding:13px 21px;border:1px solid #adafac;border-radius:23.5px"
                                                                                             target="_blank">Website
                                                                                         Tutorial</a></td>
@@ -1648,9 +1648,9 @@
                                                                             <div style="display: block; text-align: center;">
                                                                                 <div id="art-FYIbx5E7D2-svg" class="svg"
                                                                                      data-integration="capture"
-                                                                                     data-capture-alt="The Realty Interface Team"
+                                                                                     data-capture-alt="The {{ config('app.name') }} Team"
                                                                                      data-art-name="017"
-                                                                                     data-integration-capture-img-alt="The Realty Interface Team"
+                                                                                     data-integration-capture-img-alt="The {{ config('app.name') }} Team"
                                                                                      data-integration-capture-img-width="600"
                                                                                      data-integration-capture-img-height=""
                                                                                      data-integration-capture-name="017"
@@ -1864,7 +1864,7 @@
                                                                                             <tbody>
                                                                                             <tr>
                                                                                                 <td style="font-size:0;vertical-align:middle">
-                                                                                                    <a href="https://www.instagram.com/realtyinterface"><img
+                                                                                                    <a href="{{ cache('brand_settings')?->instagram_url ?? '#' }}"><img
                                                                                                                 alt="Instagram"
                                                                                                                 src="https://assets.flodesk.com/assets/social/original/d9855e/instagram.png"
                                                                                                                 width="40"

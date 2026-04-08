@@ -36,7 +36,7 @@ class AgentRegistered extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Welcome to RealtyInterface.com')
+            ->subject('Welcome to '.config('app.name'))
             ->view('mail.agent_registered', ['agent' => $this->agent]);
     }
 

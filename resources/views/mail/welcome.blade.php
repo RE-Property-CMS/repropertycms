@@ -1,6 +1,6 @@
 <div>
     <h2>Hi, {{ $name }}</h2>
-    <h3>Thank you for registering Realty Interface.</h3>
+    <h3>Thank you for registering with {{ config('app.name') }}.</h3>
     <p>Your Username : <strong>{{ $email }}</strong>
     </p>
     <br>

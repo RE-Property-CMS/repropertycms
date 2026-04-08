@@ -339,8 +339,7 @@ if (document.getElementsByClassName("images_drop").length > 0) {
 
             var propertyUrl = web_url + '/files/property_images_thumb/' + response.thumb_name;
             var str1 = response.thumb_name
-            var str2 = "realtyinterface.s3.amazonaws.com";
-            if (str1.indexOf(str2) != -1) {
+            if (str1.startsWith('http')) {
                 propertyUrl = response.thumb_name
             }
             console.log(propertyUrl);
@@ -488,8 +487,7 @@ window.addEventListener('reinitDocDropzone', event => {
 //
 //             var documentUrl = web_url + '/files/property_documents/' + response.property_id + '/' + response.filename;
 //             var str1 = response.filename
-//             var str2 = "realtyinterface.s3.amazonaws.com";
-//             if (str1.indexOf(str2) != -1) {
+//             if (str1.startsWith('http')) {
 //                 documentUrl = response.filename
 //                 documentUrlArr = response.filename.split("property_documents/")
 //                 str1 = documentUrlArr[1]
@@ -678,8 +676,7 @@ function dragEnd(event) {
 
                 var propertyUrl = web_url + '/files/property_images/' + response.property_id + '/' + response.file_name;
                 var str1 = response.file_name
-                var str2 = "realtyinterface.s3.amazonaws.com";
-                if (str1.indexOf(str2) != -1) {
+                if (str1.startsWith('http')) {
                     propertyUrl = response.file_name
                     documentUrlArr = response.file_name.split("property_images/")
                     str1 = documentUrlArr[1]
@@ -864,8 +861,7 @@ function saveImageRotate() {
 
             var documentUrl = web_url + '/files/property_images/' + response.property_id + '/' + response.file_name + '?q=' + time.getTime();
             var str1 = response.file_name
-            var str2 = "realtyinterface.s3.amazonaws.com";
-            if (str1.indexOf(str2) != -1) {
+            if (str1.startsWith('http')) {
                 documentUrl = response.file_name
             }
 

@@ -7,6 +7,7 @@
 @include('admin.includes.head')
 
 <body class="app sidebar-mini ltr light-mode admin-page">
+@include('includes.preloader')
 <!-- Flash message -->
 @include('flash-message')
 

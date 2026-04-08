@@ -63,7 +63,11 @@ function download_s3_image_resize_store($path_url, $image_url, $width = null, $h
 
 function asset_s3($url)
 {
-    return Storage::disk('s3')->url($url);
+    if (config('filesystems.default') === 's3') {
+        return Storage::disk('s3')->url($url);
+    }
+
+    return asset($url);
 }
 
 function deleteS3Image($pathUrl)
