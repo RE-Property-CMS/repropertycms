@@ -508,6 +508,11 @@ class PropertyController extends Controller
                 }
                 $properties->unique_url = $unique_url;
 
+                // Tag with the demo session so it is cleaned up when the session ends
+                if (! empty(session('demo_session_id'))) {
+                    $properties->demo_session_id = session('demo_session_id');
+                }
+
             } else {
                 $properties = Properties::where('id', '=', $id)->first();
             }

@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\DemoCron::class,
+        Commands\DemoCleanup::class,
     ];
 
     /**
@@ -25,6 +26,9 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('demo:cron')
             ->everyMinute();
+
+        $schedule->command('demo:cleanup')
+            ->everyFifteenMinutes();
     }
 
     /**

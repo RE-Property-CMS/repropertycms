@@ -416,6 +416,21 @@ table tr:hover {
     position: fixed;
     right: 0px;
     background-color: var(--sidebar-color);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.admin-page .agent_menu::-webkit-scrollbar {
+    width: 3px;
+}
+
+.admin-page .agent_menu::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.2);
+    border-radius: 3px;
+}
+
+.admin-page .agent_menu::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .admin-page .agent_menu a {

@@ -8,6 +8,8 @@
 
 <body class="app sidebar-mini ltr light-mode">
 @include('includes.preloader')
+<!-- Demo session banner (demo branch only) -->
+@include('includes.demo-banner')
 <!-- Flash message -->
 @include('flash-message')
 

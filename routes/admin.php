@@ -39,7 +39,7 @@ Route::namespace('Backend')->group(function () {
     | Authenticated Admin Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('admin')->group(function () {
+    Route::middleware(['admin', 'demo'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::namespace('Auth')->group(function () {

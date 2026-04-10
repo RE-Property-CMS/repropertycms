@@ -15,6 +15,16 @@
         </div>
     </div>
 
+    @if($isDemo ?? false)
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #3b82f6;border-radius:10px;margin-bottom:20px;">
+            <svg style="width:18px;height:18px;color:#2563eb;flex-shrink:0;margin-top:1px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+            <div>
+                <div style="font-weight:700;font-size:13px;color:#1e40af;">Demo Mode — Session Isolated</div>
+                <div style="font-size:13px;color:#1e3a8a;margin-top:2px;">Colors and fonts are fully interactive and saved only for your session — changes are invisible to other demo users. Logo and favicon uploads are disabled in demo mode.</div>
+            </div>
+        </div>
+    @endif
+
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition
             style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:10px;margin-bottom:20px;">

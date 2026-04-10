@@ -160,15 +160,24 @@ class PropertyView extends Component
 
     public function submitContactForm()
     {
-        //        $this->validate();
+        // Demo mode: skip email dispatch and show notice
+        if (session('demo_session_id')) {
+            $this->alert('info', 'Demo mode — no email was sent. In the live system this would notify the agent.', [
+                'toast'    => true,
+                'position' => 'top-end',
+                'timer'    => 6000,
+            ]);
+            $this->reset(['name', 'email', 'phone', 'comments']);
+            return;
+        }
 
-        $user = [ // Prepare $user data
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
+        $user = [
+            'name'    => $this->name,
+            'email'   => $this->email,
+            'phone'   => $this->phone,
             'message' => $this->comments,
         ];
-        $agent = $this->property->agent;
+        $agent = $this->property->agentRelation;
         $agent['userEmail'] = $agent->email;
 
         dispatch(new SendContactFormEmail($user, $agent));

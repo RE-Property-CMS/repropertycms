@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Models\DemoSession;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * Demo branch only.
+ * Enforces that a valid, non-expired demo session is active before
+ * allowing access to agent or admin routes.
+ */
+class DemoMiddleware
+{
+    public function handle(Request $request, Closure $next): mixed
+    {
+        $token = session('demo_session_id');
+
+        if (! $token) {
+            return redirect('/demo')->with('info', 'Start a demo session to continue.');
+        }
+
+        $demoSession = DemoSession::where('token', $token)->first();
+
+        if (! $demoSession || $demoSession->isExpired()) {
+            Auth::guard('agent')->logout();
+            Auth::guard('admin')->logout();
+            $request->session()->forget([
+                'demo_session_id',
+                'admin',
+                'agent',
+                'property',
+                'login_admin_59ba36addc2b2f9401580f014c7f58ea4e30989d',
+            ]);
+            return redirect('/demo?expired=1');
+        }
+
+        return $next($request);
+    }
+}

@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'agent' => \App\Http\Middleware\AgentMiddleware::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+        'demo' => \App\Http\Middleware\DemoMiddleware::class,
     ];
 }

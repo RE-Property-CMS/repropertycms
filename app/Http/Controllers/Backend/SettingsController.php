@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
+    private function isDemo(): bool
+    {
+        return !empty(session('demo_session_id'));
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Settings Overview
@@ -46,27 +51,40 @@ class SettingsController extends Controller
 
     public function mail()
     {
+        $isDemo = $this->isDemo();
+
         $isConfigured = DB::table('integration_settings')
             ->where('integration', 'mail')
             ->value('is_setup') ?? false;
 
-        $current = [
+        // In demo mode never expose real .env values
+        $current = $isDemo ? [
+            'host'         => '',
+            'port'         => '587',
+            'username'     => '',
+            'encryption'   => 'tls',
+            'from_address' => '',
+            'from_name'    => '',
+            'password_set' => false,
+        ] : [
             'host'         => config('mail.mailers.smtp.host', ''),
             'port'         => config('mail.mailers.smtp.port', '587'),
             'username'     => config('mail.mailers.smtp.username', ''),
             'encryption'   => config('mail.mailers.smtp.encryption', 'tls'),
             'from_address' => config('mail.from.address', ''),
             'from_name'    => config('mail.from.name', ''),
+            'password_set' => !empty(config('mail.mailers.smtp.password')),
         ];
 
-        // Mask password — never expose to view
-        $current['password_set'] = !empty(config('mail.mailers.smtp.password'));
-
-        return view('admin.settings.mail', compact('current', 'isConfigured'));
+        return view('admin.settings.mail', compact('current', 'isConfigured', 'isDemo'));
     }
 
     public function saveMail(Request $request, EnvService $env)
     {
+        if ($this->isDemo()) {
+            return redirect()->back()->with('demo_notice', 'Mail settings cannot be changed in demo mode.');
+        }
+
         $request->validate([
             'mail_host'         => 'required|string',
             'mail_port'         => 'required|numeric',
@@ -103,6 +121,10 @@ class SettingsController extends Controller
 
     public function testMail(Request $request): JsonResponse
     {
+        if ($this->isDemo()) {
+            return response()->json(['success' => false, 'message' => 'Live tests are disabled in demo mode.']);
+        }
+
         try {
             config([
                 'mail.default'                 => 'smtp',
@@ -134,21 +156,31 @@ class SettingsController extends Controller
 
     public function stripe()
     {
+        $isDemo = $this->isDemo();
+
         $isConfigured = DB::table('integration_settings')
             ->where('integration', 'stripe')
             ->value('is_setup') ?? false;
 
-        $current = [
+        $current = $isDemo ? [
+            'key'         => '',
+            'webhook_set' => false,
+            'secret_set'  => false,
+        ] : [
             'key'         => config('stripe.api_keys.publish_key', ''),
             'webhook_set' => !empty(config('stripe.api_keys.webhook_secret')),
             'secret_set'  => !empty(config('stripe.api_keys.secret_key')),
         ];
 
-        return view('admin.settings.stripe', compact('current', 'isConfigured'));
+        return view('admin.settings.stripe', compact('current', 'isConfigured', 'isDemo'));
     }
 
     public function saveStripe(Request $request, EnvService $env)
     {
+        if ($this->isDemo()) {
+            return redirect()->back()->with('demo_notice', 'Stripe settings cannot be changed in demo mode.');
+        }
+
         $request->validate([
             'stripe_key' => 'required|string',
         ]);
@@ -176,6 +208,10 @@ class SettingsController extends Controller
 
     public function testStripe(Request $request): JsonResponse
     {
+        if ($this->isDemo()) {
+            return response()->json(['success' => false, 'message' => 'Live tests are disabled in demo mode.']);
+        }
+
         try {
             \Stripe\Stripe::setApiKey($request->stripe_secret);
             \Stripe\Balance::retrieve();
@@ -195,23 +231,35 @@ class SettingsController extends Controller
 
     public function storage()
     {
+        $isDemo = $this->isDemo();
+
         $isConfigured = DB::table('integration_settings')
             ->where('integration', 'storage')
             ->value('is_setup') ?? false;
 
-        $current = [
-            'driver'        => config('filesystems.default', 'local'),
-            'aws_key'       => config('filesystems.disks.s3.key', ''),
-            'aws_region'    => config('filesystems.disks.s3.region', 'us-east-1'),
-            'aws_bucket'    => config('filesystems.disks.s3.bucket', ''),
+        $current = $isDemo ? [
+            'driver'         => 'local',
+            'aws_key'        => '',
+            'aws_region'     => 'us-east-1',
+            'aws_bucket'     => '',
+            'aws_secret_set' => false,
+        ] : [
+            'driver'         => config('filesystems.default', 'local'),
+            'aws_key'        => config('filesystems.disks.s3.key', ''),
+            'aws_region'     => config('filesystems.disks.s3.region', 'us-east-1'),
+            'aws_bucket'     => config('filesystems.disks.s3.bucket', ''),
             'aws_secret_set' => !empty(config('filesystems.disks.s3.secret')),
         ];
 
-        return view('admin.settings.storage', compact('current', 'isConfigured'));
+        return view('admin.settings.storage', compact('current', 'isConfigured', 'isDemo'));
     }
 
     public function saveStorage(Request $request, EnvService $env)
     {
+        if ($this->isDemo()) {
+            return redirect()->back()->with('demo_notice', 'Storage settings cannot be changed in demo mode.');
+        }
+
         $request->validate(['driver' => 'required|in:local,s3']);
 
         if ($request->driver === 's3') {
@@ -248,6 +296,10 @@ class SettingsController extends Controller
 
     public function testStorage(Request $request): JsonResponse
     {
+        if ($this->isDemo()) {
+            return response()->json(['success' => false, 'message' => 'Live tests are disabled in demo mode.']);
+        }
+
         if ($request->driver === 'local') {
             return response()->json(['success' => true, 'message' => 'Local storage selected. No credentials needed.']);
         }
@@ -276,20 +328,29 @@ class SettingsController extends Controller
 
     public function captcha()
     {
+        $isDemo = $this->isDemo();
+
         $isConfigured = DB::table('integration_settings')
             ->where('integration', 'captcha')
             ->value('is_setup') ?? false;
 
-        $current = [
+        $current = $isDemo ? [
+            'site_key'   => '',
+            'secret_set' => false,
+        ] : [
             'site_key'   => config('services.recaptcha.site_key', ''),
             'secret_set' => !empty(config('services.recaptcha.secret_key')),
         ];
 
-        return view('admin.settings.captcha', compact('current', 'isConfigured'));
+        return view('admin.settings.captcha', compact('current', 'isConfigured', 'isDemo'));
     }
 
     public function saveCaptcha(Request $request, EnvService $env)
     {
+        if ($this->isDemo()) {
+            return redirect()->back()->with('demo_notice', 'reCAPTCHA settings cannot be changed in demo mode.');
+        }
+
         $request->validate([
             'site_key' => 'required|string',
         ]);
@@ -313,6 +374,10 @@ class SettingsController extends Controller
 
     public function testCaptcha(Request $request): JsonResponse
     {
+        if ($this->isDemo()) {
+            return response()->json(['success' => false, 'message' => 'Live tests are disabled in demo mode.']);
+        }
+
         // reCAPTCHA keys can't be validated without a real CAPTCHA response token,
         // so we just confirm both keys are present and non-empty.
         $siteKey   = $request->site_key;
@@ -338,9 +403,13 @@ class SettingsController extends Controller
 
     public function brand()
     {
-        $brand = DB::table('brand_settings')->first();
+        $isDemo = $this->isDemo();
 
-        return view('admin.settings.brand', compact('brand'));
+        $brand = ($isDemo && session()->has('demo_brand_settings'))
+            ? (object) session('demo_brand_settings')
+            : DB::table('brand_settings')->first();
+
+        return view('admin.settings.brand', compact('brand', 'isDemo'));
     }
 
     /*
@@ -394,6 +463,20 @@ class SettingsController extends Controller
             'created_at'      => now(),
         ];
 
+        // ── Demo mode: store in session, never touch the shared DB row or shared files ──
+        if ($this->isDemo()) {
+            // Carry over any logo/favicon already in the demo session (don't overwrite shared public files)
+            $existing = session('demo_brand_settings', []);
+            $data['logo_path']    = $existing['logo_path']    ?? DB::table('brand_settings')->value('logo_path');
+            $data['favicon_path'] = $existing['favicon_path'] ?? DB::table('brand_settings')->value('favicon_path');
+
+            session(['demo_brand_settings' => $data]);
+
+            return redirect()->route('admin.settings.brand')
+                ->with('success', 'Brand settings saved for this demo session.');
+        }
+
+        // ── Real admin: persist to DB and update global cache ──
         // Handle logo and favicon uploads
         foreach (['logo', 'favicon'] as $field) {
             if ($request->hasFile($field) && $request->file($field)->isValid()) {

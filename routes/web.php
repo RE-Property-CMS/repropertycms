@@ -18,6 +18,7 @@ use App\Http\Controllers\Agent\TopbarsController;
 use App\Http\Controllers\Agent\VideoController;
 use App\Http\Controllers\Agent\DashboardController;
 use App\Http\Controllers\SetupController;
+use App\Http\Controllers\DemoController;
 
 // TEMP: Mail preview routes — remove before production
 // Route::get('/mail-preview/agent-registered', function () {
@@ -181,8 +182,21 @@ Route::prefix('setup')->name('setup.')->group(function () {
 
 
 
-// Go to Agent Login screen
-Route::get('/', function () { return redirect()->route('login'); });
+/*
+|--------------------------------------------------------------------------
+| Demo Routes (demo branch only)
+|--------------------------------------------------------------------------
+*/
+Route::get('/demo', [DemoController::class, 'landing'])->name('demo.landing');
+Route::post('/demo/start', [DemoController::class, 'start'])->name('demo.start');
+Route::get('/demo/complete', [DemoController::class, 'complete'])->name('demo.complete');
+Route::get('/demo/{token}/end', [DemoController::class, 'end'])->name('demo.end');
+Route::get('/demo/{token}/{role}', [DemoController::class, 'switchRole'])
+    ->name('demo.switch')
+    ->where('role', 'admin|agent|buyer');
+
+// Product home page
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/pricing', [SubscriptionController::class, 'showSubscriptionPage'])->name('pricing');
 require __DIR__.'/auth.php';
 
@@ -194,7 +208,7 @@ require __DIR__.'/auth.php';
 */
 Route::prefix('agent')->name('agent.')->group(function () {
     // Add login check for all Agent URLS inside this block
-    Route::middleware(['agent', 'verified'])->group(function () {
+    Route::middleware(['agent', 'verified', 'demo'])->group(function () {
         Route::get('/', [AgentsController::class, 'agents'])->name('index');
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('welcome', [DashboardController::class,  'welcome' ])->name('welcome');

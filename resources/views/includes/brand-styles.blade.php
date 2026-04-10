@@ -1,7 +1,12 @@
 @php
-    $brand = cache()->remember('brand_settings', 3600, fn() =>
-        \Illuminate\Support\Facades\DB::table('brand_settings')->first()
-    );
+    // Demo sessions store their own brand overrides in the PHP session so that
+    // concurrent demo users are fully isolated from each other and from the real DB row.
+    $demoBrand = session('demo_brand_settings');
+    $brand = $demoBrand
+        ? (object) $demoBrand
+        : cache()->remember('brand_settings', 3600, fn() =>
+            \Illuminate\Support\Facades\DB::table('brand_settings')->first()
+        );
     $fonts = array_unique([
         $brand->font_body    ?? 'Lato',
         $brand->font_heading ?? 'Julius Sans One',
