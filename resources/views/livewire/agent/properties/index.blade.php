@@ -102,6 +102,30 @@
         </a>
     </div>
 
+    {{-- Demo: live example banner --}}
+    @if(session('demo_session_id'))
+    <div style="display:flex;align-items:stretch;gap:0;border-radius:12px;overflow:hidden;border:1px solid #bfdbfe;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(37,99,235,.08);">
+        {{-- Property thumbnail --}}
+        <div style="flex-shrink:0;width:140px;min-height:90px;position:relative;overflow:hidden;">
+            <img src="{{ asset('images/demo/publish-property-banner.jpg') }}" alt="101505 Valhalla Drive"
+                 style="width:100%;height:100%;object-fit:cover;display:block;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to right,transparent 60%,rgba(239,246,255,0.6));"></div>
+        </div>
+        {{-- Content --}}
+        <div style="flex:1;display:flex;align-items:center;gap:14px;padding:14px 18px;background:#eff6ff;">
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#3b82f6;margin-bottom:3px;">Live Example</div>
+                <div style="font-weight:700;font-size:0.95rem;color:#1e3a8a;margin-bottom:4px;">101505 Valhalla Drive</div>
+                <div style="font-size:0.78rem;color:#3b82f6;">See what your listings look like when published &amp; live.</div>
+            </div>
+            <a href="https://app.realtyinterface.com/101505-valhalla-drive" target="_blank" rel="noopener"
+               style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#2563eb;color:#fff;font-size:0.8rem;font-weight:600;text-decoration:none;white-space:nowrap;box-shadow:0 1px 4px rgba(37,99,235,.3);">
+                View Live <i class="fa fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
+            </a>
+        </div>
+    </div>
+    @endif
+
     {{-- Property grid --}}
     @if($properties->count() > 0)
         <div class="pl-grid">

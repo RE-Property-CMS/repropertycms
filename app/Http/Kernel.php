@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
         'demo' => \App\Http\Middleware\DemoMiddleware::class,
+        'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
     ];
 }

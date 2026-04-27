@@ -16,6 +16,11 @@ class DemoMiddleware
 {
     public function handle(Request $request, Closure $next): mixed
     {
+        // Super admin is a permanent account — fully exempt from demo session requirements
+        if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->is_super_admin) {
+            return $next($request);
+        }
+
         $token = session('demo_session_id');
 
         if (! $token) {

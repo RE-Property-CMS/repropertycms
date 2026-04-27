@@ -85,6 +85,9 @@ class CheckIfAppSetup
 
         // Block all setup routes after installation
         if ($request->is('setup*')) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'redirect' => '/admin/sign-in']);
+            }
             return redirect('/admin/dashboard');
         }
 

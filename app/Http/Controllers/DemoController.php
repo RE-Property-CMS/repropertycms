@@ -2,184 +2,166 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DemoSession;
+use App\Models\Page;
+use App\Models\Properties;
 use App\Models\Agents;
 use App\Models\Backend\Admin;
-use App\Models\DemoSession;
-use App\Models\Plan;
-use App\Models\Properties;
-use App\Models\PropertyFloorplans;
-use App\Models\PropertyImages;
-use App\Models\Subscription;
+use App\Services\DemoProvisioningService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 /**
  * Demo branch only.
- * Handles the full demo lifecycle: landing, session creation, role switching, and ending.
+ * Handles the public demo lifecycle: landing, session activation, role switching, and ending.
+ * All provisioning logic lives in DemoProvisioningService.
  */
 class DemoController extends Controller
 {
+    public function __construct(private readonly DemoProvisioningService $provisioner) {}
+
     // ─── Landing ─────────────────────────────────────────────────────────────
 
     public function landing(Request $request)
     {
         $expired = $request->query('expired');
+
+        $page = Page::where('key', 'demo-landing')->where('action', true)->first();
+
+        if ($page && $page->html) {
+            $formHtml = view('demo.partials.landing-form', [
+                'expired' => $expired,
+                'errors'  => session()->get('errors', new \Illuminate\Support\ViewErrorBag()),
+            ])->render();
+
+            $body = preg_replace(
+                '/<div[^>]*data-demo=["\']form["\'][^>]*>.*?<\/div>/si',
+                $formHtml,
+                $page->html
+            );
+
+            return response($this->buildDemoHtml($page, $body ?? $page->html))
+                ->header('Content-Type', 'text/html; charset=utf-8');
+        }
+
         return view('demo.landing', compact('expired'));
     }
 
-    // ─── Start ───────────────────────────────────────────────────────────────
-
-    public function start()
+    private function buildDemoHtml(Page $page, string $body): string
     {
-        $token = Str::random(16);
+        $title = e($page->meta_title ?: $page->title);
+        $css   = $page->css ?? '';
 
-        // 1. Create demo admin (bypasses global scope — session not set yet)
-        $admin = Admin::create([
-            'email'            => 'admin_' . $token . '@demo.local',
-            'password'         => Hash::make('demo1234'),
-            'demo_session_id'  => $token,
+        return <<<HTML
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>{$title}</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+            <style>{$css}</style>
+        </head>
+        <body>
+            {$body}
+        </body>
+        </html>
+        HTML;
+    }
+
+    // ─── Disposable email check ───────────────────────────────────────────────
+
+    private const DISPOSABLE_DOMAINS = [
+        'mailinator.com', 'yopmail.com', 'guerrillamail.com', 'guerrillamail.net',
+        'guerrillamail.org', 'guerrillamail.biz', 'guerrillamail.de', 'guerrillamail.info',
+        'throwam.com', 'throwam.net', 'tempmail.com', 'temp-mail.org', 'temp-mail.io',
+        'trashmail.com', 'trashmail.me', 'trashmail.net', 'trashmail.io', 'trashmail.at',
+        'sharklasers.com', 'guerrillamailblock.com', 'grr.la', 'spam4.me',
+        'dispostable.com', 'mailnull.com', 'spamgourmet.com', 'spamgourmet.net',
+        'maildrop.cc', 'mailnesia.com', 'discard.email',
+        'fakeinbox.com', 'fakeinbox.net', 'spamfree24.org', 'spamhereplease.com',
+        'spammotel.com', 'spamoff.de', 'spamspot.com', 'spamthis.co.uk',
+        'tempinbox.com', 'tempinbox.co.uk', 'tempr.email',
+        'getairmail.com', 'filzmail.com', 'getnada.com',
+        'mailexpire.com', 'mintemail.com', 'mytrashmail.com', 'no-spam.ws', 'no-spam.eu',
+        'nobulk.com', 'noclickemail.com', 'nogmailspam.info', 'nomail.xl.cx',
+        'nomail2me.com', 'nospam.ze.tc', 'nospam4.us', 'nospamfor.us',
+        'trashmail.xyz', 'trashmailer.com',
+        'kurzepost.de', 'objectmail.com', 'obobbo.com', 'oneoffemail.com',
+        'onewaymail.com', 'online.ms', 'oopi.org', 'opayq.com',
+        'zetmail.com', 'zoemail.com', 'mailseal.de', 'wegwerfmail.de',
+        'wegwerfmail.net', 'wegwerfmail.org', 'yep.it', 'mailtemp.info',
+    ];
+
+    private function isDisposableEmail(string $email): bool
+    {
+        $domain = strtolower(substr($email, strpos($email, '@') + 1));
+        return in_array($domain, self::DISPOSABLE_DOMAINS, true);
+    }
+
+    // ─── Start (self-service) ─────────────────────────────────────────────────
+
+    public function start(Request $request)
+    {
+        $request->validate([
+            'name'  => 'nullable|string|max:100',
+            'email' => 'required|email|max:255',
         ]);
 
-        // 2. Create demo agent
-        $agent = Agents::withoutGlobalScopes()->create([
-            'first_name'        => 'Sarah',
-            'last_name'         => 'Mitchell',
-            'email'             => 'agent_' . $token . '@demo.local',
-            'password'          => Hash::make('demo1234'),
-            'email_verified_at' => now(),
-            'demo_session_id'   => $token,
-        ]);
-
-        // Copy demo profile photo into agent's local folder
-        $agentImageDir = public_path('files/agents/' . $agent->id);
-        if (! is_dir($agentImageDir)) {
-            mkdir($agentImageDir, 0755, true);
-        }
-        $demoAgentSrc = public_path('images/demo/agent.jpg');
-        if (file_exists($demoAgentSrc)) {
-            copy($demoAgentSrc, $agentImageDir . '/agent.jpg');
-            $agent->update(['profile_image' => 'agent.jpg']);
+        if ($this->isDisposableEmail($request->email)) {
+            return back()
+                ->withInput()
+                ->withErrors(['email' => 'Please use a real email address. Temporary/disposable email services are not allowed.']);
         }
 
-        // 3. Record the demo session (before properties so we have the expiry timestamp)
-        $demoSession = DemoSession::create([
-            'token'      => $token,
-            'admin_id'   => $admin->id,
-            'agent_id'   => $agent->id,
-            'expires_at' => now()->addMinutes(60),
-        ]);
+        $this->provisioner->provision(
+            email:         $request->email,
+            name:          $request->name ?? '',
+            type:          'self_service',
+            expiryMinutes: 60,
+            ip:            $request->ip(),
+        );
 
-        // 4. Create demo properties (unpublished — agent must subscribe to publish)
-        $propertyData = [
-            [
-                'name'           => 'Oceanview Villa',
-                'headline'       => 'Stunning 4-bedroom villa with panoramic ocean views',
-                'description'    => 'Experience luxury living in this beautifully designed oceanfront property. Features open-plan living, chef\'s kitchen, private pool, and direct beach access. Every room captures sweeping views of the Pacific, with floor-to-ceiling glass doors opening onto a wraparound terrace.',
-                'bedroom'        => 4,
-                'bathroom'       => 3,
-                'garage'         => 2,
-                'price'          => '1,250,000',
-                'property_area'  => '420',
-                'city'           => 'Malibu',
-                'address_line_1' => '12 Ocean Drive',
-                'zip'            => '90265',
-                'unique_url'     => 'oceanview-villa-' . $token,
-                'main_section'   => 'Image',
-                'images'         => [
-                    'images/demo/prop-1.jpg',
-                    'images/demo/prop-2.jpg',
-                    'images/demo/interior-living.jpg',
-                    'images/demo/interior-living-1.jpg',
-                    'images/demo/interior-kitchen.jpg',
-                    'images/demo/interior-bedroom.jpg',
-                    'images/demo/interior-bathroom.jpg',
-                ],
-                'floorplan' => 'images/demo/floorplan.jpg',
-            ],
-            [
-                'name'           => 'City Centre Apartment',
-                'headline'       => 'Modern 2-bedroom apartment in the heart of downtown',
-                'description'    => 'Sleek and contemporary apartment offering stunning city skyline views. Open-plan living space, floor-to-ceiling windows, and premium finishes throughout. Steps from world-class dining, retail, and transport hubs.',
-                'bedroom'        => 2,
-                'bathroom'       => 2,
-                'garage'         => 1,
-                'price'          => '485,000',
-                'property_area'  => '95',
-                'city'           => 'New York',
-                'address_line_1' => '88 Park Avenue',
-                'zip'            => '10016',
-                'unique_url'     => 'city-centre-apt-' . $token,
-                'main_section'   => 'Image',
-                'images'         => [
-                    'images/demo/prop-3.jpg',
-                    'images/demo/prop-4.jpg',
-                    'images/demo/prop-5.jpg',
-                    'images/demo/interior-living-1.jpg',
-                    'images/demo/interior-kitchen-1.jpg',
-                    'images/demo/interior-bedroom-1.jpg',
-                    'images/demo/interior-bathroom-1.jpg',
-                ],
-            ],
-        ];
+        session()->flash('demo_lead_email', $request->email);
 
-        foreach ($propertyData as $data) {
-            $images    = $data['images'];
-            $floorplan = $data['floorplan'] ?? null;
-            unset($data['images'], $data['floorplan']);
+        return redirect()->route('demo.check-email');
+    }
 
-            $property = Properties::withoutGlobalScopes()->create(array_merge($data, [
-                'agent_id'        => $agent->id,
-                'matterport_data' => '',
-                'published'       => 0,
-                'reviewed'        => 0,
-                'demo_session_id' => $token,
-                'publish_date'    => now()->toDateString(),
-                'expiry_date'     => $demoSession->expires_at,
-            ]));
+    // ─── Enter (activates session then sends to login) ────────────────────────
 
-            // Attach images and set the first as the featured topbar image
-            $firstImageId = null;
-            foreach ($images as $imagePath) {
-                $img = PropertyImages::create([
-                    'property_id' => $property->id,
-                    'file_name'   => $imagePath,
-                    'thumb'       => $imagePath,
-                ]);
-                if ($firstImageId === null) {
-                    $firstImageId = $img->id;
-                }
-            }
-            if ($firstImageId) {
-                $property->update(['featured_image' => $firstImageId]);
-            }
+    public function enter(Request $request, string $token, string $role)
+    {
+        $demoSession = DemoSession::where('token', $token)->first();
 
-            // Attach floorplan if provided
-            if ($floorplan) {
-                PropertyFloorplans::create([
-                    'property_id' => $property->id,
-                    'name'        => 'Ground Floor',
-                    'file_name'   => $floorplan,
-                    'thumb'       => $floorplan,
-                    'sequence'    => 1,
-                    'sort_order'  => 0,
-                ]);
-            }
+        if (! $demoSession || $demoSession->isExpired()) {
+            return redirect()->route('demo.landing', ['expired' => 1]);
         }
 
-        // 7. Store the token in session — activates global scopes from here on
         session(['demo_session_id' => $token]);
 
-        // 8. Go to admin entry point
-        return redirect('/demo/' . $token . '/admin');
+        if ($role === 'admin') {
+            // First-time entry → show wizard tour before admin panel
+            if (! session('demo_wizard_shown')) {
+                session()->put('url.intended', route('demo.wizard.requirements'));
+            }
+            return redirect()->route('admin.login');
+        }
+
+        return redirect()->route('login');
+    }
+
+    // ─── Check email page ─────────────────────────────────────────────────────
+
+    public function checkEmail()
+    {
+        return view('demo.check-email');
     }
 
     // ─── Switch Role ─────────────────────────────────────────────────────────
 
     public function switchRole(Request $request, string $token, string $role)
     {
-        // Validate the token belongs to the current session
         if (session('demo_session_id') !== $token) {
             return redirect('/demo');
         }
@@ -189,7 +171,6 @@ class DemoController extends Controller
             return redirect('/demo?expired=1');
         }
 
-        // Log out both guards cleanly before switching
         Auth::guard('agent')->logout();
         Auth::guard('admin')->logout();
         $request->session()->forget(['admin', 'agent', 'property',
@@ -217,7 +198,6 @@ class DemoController extends Controller
         }
 
         if ($role === 'buyer') {
-            // Open the first demo property as a public buyer
             $property = Properties::withoutGlobalScopes()
                 ->where('demo_session_id', $token)
                 ->first();
@@ -234,13 +214,16 @@ class DemoController extends Controller
 
     public function end(Request $request, string $token)
     {
-        // Immediately delete all data for this demo session
-        $this->purgeSession($token);
+        $session = DemoSession::where('token', $token)->first();
+        if ($session) {
+            $this->provisioner->purge($session);
+        }
 
         Auth::guard('agent')->logout();
         Auth::guard('admin')->logout();
         $request->session()->forget([
             'demo_session_id',
+            'demo_brand_settings',
             'admin',
             'agent',
             'property',
@@ -248,139 +231,6 @@ class DemoController extends Controller
         ]);
 
         return redirect('/demo/complete');
-    }
-
-    // ─── Purge all data for one demo session ─────────────────────────────────
-
-    public static function purgeSession(string $token): void
-    {
-        $session = DemoSession::where('token', $token)->first();
-        if (! $session) {
-            return;
-        }
-
-        // Delete agent image directory
-        $agentImageDir = public_path('files/agents/' . $session->agent_id);
-        if (is_dir($agentImageDir)) {
-            array_map('unlink', glob($agentImageDir . '/*'));
-            rmdir($agentImageDir);
-        }
-
-        // Collect property IDs before wiping DB records so we can delete their files
-        $propertyIds = Properties::withoutGlobalScopes()
-            ->where('demo_session_id', $token)
-            ->withTrashed()
-            ->pluck('id')
-            ->toArray();
-
-        if (! empty($propertyIds)) {
-            self::deletePropertyFiles($propertyIds);
-        }
-
-        // Properties (SoftDeletes — force-delete cascades to images, floorplans, etc.)
-        Properties::withoutGlobalScopes()
-            ->where('demo_session_id', $token)
-            ->withTrashed()
-            ->forceDelete();
-
-        // Subscriptions
-        Subscription::withoutGlobalScopes()
-            ->where('demo_session_id', $token)
-            ->delete();
-
-        // Plans
-        Plan::withoutGlobalScopes()
-            ->where('demo_session_id', $token)
-            ->delete();
-
-        // Agent
-        Agents::withoutGlobalScopes()
-            ->where('demo_session_id', $token)
-            ->delete();
-
-        // Admin
-        Admin::where('demo_session_id', $token)->delete();
-
-        // Demo session record
-        $session->delete();
-    }
-
-    // ─── Delete uploaded files for a set of property IDs ─────────────────────
-    //
-    // Handles both S3 (images, floorplans, documents uploaded via uploadS3Image)
-    // and local disk (videos moved to public/files/property_videos/{id}/).
-    // Demo placeholder paths (images/demo/*) are never deleted.
-
-    public static function deletePropertyFiles(array $propertyIds): void
-    {
-        if (empty($propertyIds)) {
-            return;
-        }
-
-        // ── S3 file cleanup ───────────────────────────────────────────────────
-        if (config('filesystems.default') === 's3') {
-            $s3Paths = [];
-
-            // Images (file_name + thumb)
-            foreach (\Illuminate\Support\Facades\DB::table('property_images')
-                ->whereIn('property_id', $propertyIds)
-                ->get(['file_name', 'thumb']) as $row) {
-                foreach ([$row->file_name, $row->thumb] as $path) {
-                    if ($path && ! str_starts_with($path, 'images/demo/')) {
-                        $s3Paths[] = $path;
-                    }
-                }
-            }
-
-            // Floorplans (file_name + thumb)
-            foreach (\Illuminate\Support\Facades\DB::table('property_floorplans')
-                ->whereIn('property_id', $propertyIds)
-                ->get(['file_name', 'thumb']) as $row) {
-                foreach ([$row->file_name, $row->thumb] as $path) {
-                    if ($path && ! str_starts_with($path, 'images/demo/')) {
-                        $s3Paths[] = $path;
-                    }
-                }
-            }
-
-            // Documents
-            foreach (\Illuminate\Support\Facades\DB::table('property_documents')
-                ->whereIn('property_id', $propertyIds)
-                ->whereNotNull('file_name')
-                ->pluck('file_name') as $path) {
-                if (! str_starts_with($path, 'images/demo/')) {
-                    $s3Paths[] = $path;
-                }
-            }
-
-            // Videos stored on S3 (file_name is non-null for direct uploads)
-            foreach (\Illuminate\Support\Facades\DB::table('property_videos')
-                ->whereIn('property_id', $propertyIds)
-                ->whereNotNull('file_name')
-                ->pluck('file_name') as $path) {
-                if (! str_starts_with($path, 'images/demo/')) {
-                    $s3Paths[] = $path;
-                }
-            }
-
-            if (! empty($s3Paths)) {
-                \Illuminate\Support\Facades\Storage::disk('s3')->delete(array_unique($s3Paths));
-            }
-        }
-
-        // ── Local video directories ───────────────────────────────────────────
-        // Videos are moved to public/files/property_videos/{property_id}/ on local disk.
-        foreach ($propertyIds as $id) {
-            $dir = public_path('files/property_videos/' . $id);
-            if (is_dir($dir)) {
-                foreach (glob($dir . '/*') as $file) {
-                    if (is_file($file)) {
-                        unlink($file);
-                    }
-                }
-                rmdir($dir);
-            }
-        }
     }
 
     // ─── Complete page ────────────────────────────────────────────────────────

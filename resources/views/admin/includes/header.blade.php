@@ -36,11 +36,25 @@
               <span>Subscriber</span>
           </a>
       </li>
+      @if(auth('admin')->user()?->is_super_admin)
       <li>
-          <a href="{{route('admin.pages.lists')}}"><i class="fas fa-home pr-2"></i>
-              <span>Pages</span>
+          <a href="{{route('admin.demo.sessions')}}"><i class="fas fa-flask pr-2"></i>
+              <span>Demo Sessions</span>
           </a>
       </li>
+      <li>
+          <a href="{{route('admin.pages.lists')}}"><i class="fas fa-paint-brush pr-2"></i>
+              <span>Page Builder</span>
+          </a>
+      </li>
+      @endif
+      @if(session('demo_session_id'))
+      <li>
+          <a href="{{ route('demo.wizard.requirements') }}"><i class="fas fa-magic pr-2"></i>
+              <span>Replay Setup Wizard</span>
+          </a>
+      </li>
+      @endif
       <li>
           <a href="{{route('admin.settings.index')}}"><i class="fas fa-cog pr-2"></i>
               <span>Settings</span>

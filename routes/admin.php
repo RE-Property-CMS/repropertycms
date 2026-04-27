@@ -10,6 +10,7 @@ use App\Http\Controllers\Backend\SubscriberController;
 use App\Http\Controllers\Backend\PagesController;
 use App\Http\Controllers\Backend\SettingsController;
 use App\Http\Controllers\Backend\DemoSeederController;
+use App\Http\Controllers\Backend\DemoInviteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,25 +81,39 @@ Route::namespace('Backend')->group(function () {
 
      /*
     |--------------------------------------------------------------------------
-    | CMS Pages
+    | CMS Pages (Page Builder — super admin only)
     |--------------------------------------------------------------------------
     */
-        Route::prefix('pages')->name('pages.')->group(function () {
-            Route::get('/', [PagesController::class, 'index'])->name('lists');
-            Route::get('/create', [PagesController::class, 'create'])->name('create');
-            Route::get('update/{id?}', 'PagesController@update')->name('update');
-            Route::get('delete', 'PagesController@delete');
-            Route::get('status', 'PagesController@status');
+        Route::prefix('pages')->name('pages.')->middleware(['super_admin'])->group(function () {
+            Route::get('/',                 [PagesController::class, 'index'])->name('lists');
+            Route::get('/create',           [PagesController::class, 'create'])->name('create');
+            Route::post('/',                [PagesController::class, 'store'])->name('store');
+            Route::get('/{id}/edit',        [PagesController::class, 'edit'])->name('edit');
+            Route::post('/{id}',            [PagesController::class, 'update'])->name('update');
+            Route::get('/{id}/delete',      [PagesController::class, 'destroy'])->name('destroy');
         });
 
     /*
     |--------------------------------------------------------------------------
-    | Demo Data Seeder
+    | Demo Data Seeder (internal tool — all admins)
     |--------------------------------------------------------------------------
     */
         Route::prefix('demo')->name('demo.')->group(function () {
             Route::post('seed',  [DemoSeederController::class, 'seed'])->name('seed');
             Route::post('reset', [DemoSeederController::class, 'reset'])->name('reset');
+
+            /*
+            |--------------------------------------------------------------
+            | Demo Sessions + Invitations (super admin only)
+            |--------------------------------------------------------------
+            */
+            Route::middleware(['super_admin'])->group(function () {
+                Route::get('sessions',               [DemoInviteController::class, 'sessions'])->name('sessions');
+                Route::get('invite',                 [DemoInviteController::class, 'invite'])->name('invite');
+                Route::post('invite',                [DemoInviteController::class, 'store'])->name('invite.store');
+                Route::post('sessions/{id}/revoke',  [DemoInviteController::class, 'revoke'])->name('sessions.revoke');
+                Route::post('sessions/{id}/resend',  [DemoInviteController::class, 'resend'])->name('sessions.resend');
+            });
         });
 
     /*

@@ -244,8 +244,9 @@ class SetupController extends Controller
         ]);
 
         Admin::create([
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'email'          => $request->email,
+            'password'       => Hash::make($request->password),
+            'is_super_admin' => true,
         ]);
 
         // Store non-sensitive summary in session for the final review page
@@ -497,9 +498,6 @@ class SetupController extends Controller
     {
         $setup = session('setup', []);
 
-        // Mark app as installed in .env
-        $env->set(['APP_INSTALLED' => 'true']);
-
         // Record integration configuration status in the database
         $integrations = [
             ['integration' => 'app',     'is_setup' => true],
@@ -530,6 +528,9 @@ class SetupController extends Controller
         );
         $seeder->setTimeout(60);
         $seeder->run();
+
+        // Mark as installed only after all operations succeed
+        $env->set(['APP_INSTALLED' => 'true']);
 
         session()->flush();
 

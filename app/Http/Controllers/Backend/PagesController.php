@@ -3,116 +3,158 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pages;
+use App\Models\Page;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class PagesController extends Controller
 {
+    // ─── List ────────────────────────────────────────────────────────────────
+
     public function index()
     {
-
-        return view('admin.pages.index');
-    }
-
-    public function create()
-    {
-
-        return view('admin.pages.create');
-    }
-
-    public function update($id = null)
-    {
-        if (! is_null($id)) {
-            $page = Pages::find($id);
-
-            return view('admin.pages.add', ['page' => $page]);
-        } else {
-            return view('admin.pages.add');
-        }
-    }
-
-    public function add(Request $request, $id = null)
-    {
-        $request->validate(
-            [
-                'title' => 'required',
-                'content' => 'required',
-            ]
-        );
-
-        $data = $request->all();
-
-        if ($data['title'] != '') {
-
-            $slug = Str::of($data['title'])->slug('-');
-
-            if (is_null($id)) {
-                $page = new Pages;
-            } else {
-                $page = Pages::find($id);
-            }
-            $page->title = $data['title'];
-            $page->slug = $slug;
-            $page->content = $data['content'];
-
-            if ($page->save()) {
-                return redirect()->route('admin.pages')->with('success', 'Page saved successfully.');
-            } else {
-                return redirect()->route('admin.add')->with('error', 'Failed to save Page.');
-            }
-        } else {
-            return redirect('admin.add')->with('error', "Title can't be empty.");
-        }
-    }
-
-    public function delete(Request $request)
-    {
-        $data = [];
-        if (! is_null($request['Id'])) {
-            $page = Pages::find($request['Id']);
-            if ($page) {
-                if ($page->delete()) {
-                    $data['success'] = '1';
-                    $data['message'] = 'Page deleted successfully';
-                } else {
-                    $data['success'] = '0';
-                    $data['message'] = 'Page is not deleted';
-                }
-            } else {
-                return redirect()->route('admin.pages')->with('error', "Page doesn't exist.");
-            }
-        } else {
-            return redirect()->route('admin.pages')->with('error', 'Invalid id.');
+        // System pages always shown at top
+        $systemPages = [];
+        foreach (Page::SYSTEM_KEYS as $key => $label) {
+            $systemPages[$key] = [
+                'label' => $label,
+                'page'  => Page::where('key', $key)->first(),
+            ];
         }
 
-        return response()->json($data);
+        $customPages = Page::whereNull('key')->latest()->paginate(15);
+
+        return view('admin.pages.index', compact('systemPages', 'customPages'));
     }
 
-    public function status(Request $request)
+    // ─── Create ───────────────────────────────────────────────────────────────
+
+    public function create(Request $request)
     {
-        $data = [];
-        if (! is_null($request['id'])) {
-            $page = Pages::find($request['id']);
-            if ($page) {
-                if ($page->action == 1) {
-                    $page->action = 0;
-                } else {
-                    $page->action = 1;
-                }
-                $data['status'] = $page->action;
-                if ($page->save()) {
-                    $data['success'] = '1';
-                } else {
-                    $data['success'] = '0';
-                }
-            } else {
-                return redirect()->route('admin.pages')->with('error', "Page doesn't exist.");
+        // If a system page preset is requested (first-time edit), auto-create the
+        // DB record and redirect to the edit page so it behaves like a normal edit.
+        $preset = $request->query('preset');
+        if ($preset && array_key_exists($preset, Page::SYSTEM_KEYS)) {
+            $existing = Page::where('key', $preset)->first();
+            if ($existing) {
+                return redirect()->route('admin.pages.edit', $existing->id);
             }
-        } else {
-            return redirect()->route('admin.pages')->with('error', 'Invalid id.');
+
+            $page = Page::create([
+                'title'   => Page::SYSTEM_KEYS[$preset],
+                'key'     => $preset,
+                'action'  => true,
+                'slug'    => $preset,
+                'content' => '',
+            ]);
+
+            return redirect()->route('admin.pages.edit', $page->id);
         }
 
-        return response()->json($data);
+        return view('admin.pages.editor', [
+            'page'        => null,
+            'initialHtml' => null,
+            'formAction'  => route('admin.pages.store'),
+        ]);
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title'     => 'required|string|max:255',
+            'gjs_html'  => 'nullable|string',
+            'gjs_css'   => 'nullable|string',
+            'gjs_data'  => 'nullable|string',
+        ]);
+
+        Page::create([
+            'title'            => $request->title,
+            'content'          => '',
+            'html'             => $request->gjs_html,
+            'css'              => $request->gjs_css,
+            'gjs_data'         => $request->gjs_data,
+            'action'           => true,
+            'meta_title'       => $request->meta_title,
+            'meta_description' => $request->meta_description,
+            'meta_keywords'    => $request->meta_keywords,
+        ]);
+
+        return redirect()->route('admin.pages.lists')
+            ->with('success', 'Page created successfully.');
+    }
+
+    // ─── Edit ─────────────────────────────────────────────────────────────────
+
+    public function edit(int $id)
+    {
+        $page = Page::findOrFail($id);
+
+        // System pages use a simple field-based content editor (not GrapesJS).
+        if ($page->isSystemPage()) {
+            $content = ($page->gjs_data) ? (json_decode($page->gjs_data, true) ?: []) : [];
+            return view('admin.pages.content-editor', compact('page', 'content'));
+        }
+
+        return view('admin.pages.editor', [
+            'page'        => $page,
+            'initialHtml' => null,
+            'formAction'  => route('admin.pages.update', $page->id),
+        ]);
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $page = Page::findOrFail($id);
+
+        // System pages: store all submitted content fields as JSON.
+        if ($page->isSystemPage()) {
+            $content = $request->except(['_token', '_method', 'action']);
+            $page->update([
+                'action'   => $request->boolean('action', true),
+                'gjs_data' => json_encode(array_filter($content, fn($v) => $v !== null)),
+            ]);
+            return redirect()->route('admin.pages.lists')
+                ->with('success', 'Content saved successfully.');
+        }
+
+        // Custom pages: GrapesJS save.
+        $request->validate([
+            'title'    => 'required|string|max:255',
+            'gjs_html' => 'nullable|string',
+            'gjs_css'  => 'nullable|string',
+            'gjs_data' => 'nullable|string',
+        ]);
+
+        $page->update([
+            'title'            => $request->title,
+            'content'          => $page->content ?? '',
+            'html'             => $request->gjs_html,
+            'css'              => $request->gjs_css,
+            'gjs_data'         => $request->gjs_data,
+            'action'           => $request->boolean('action', true),
+            'meta_title'       => $request->meta_title,
+            'meta_description' => $request->meta_description,
+            'meta_keywords'    => $request->meta_keywords,
+        ]);
+
+        return redirect()->route('admin.pages.lists')
+            ->with('success', 'Page saved successfully.');
+    }
+
+    // ─── Delete ───────────────────────────────────────────────────────────────
+
+    public function destroy(int $id)
+    {
+        $page = Page::findOrFail($id);
+
+        if ($page->isSystemPage()) {
+            return redirect()->route('admin.pages.lists')
+                ->with('error', 'System pages cannot be deleted. You can disable them instead.');
+        }
+
+        $page->delete();
+
+        return redirect()->route('admin.pages.lists')
+            ->with('success', 'Page deleted.');
+    }
+
 }

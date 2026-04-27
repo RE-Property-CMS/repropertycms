@@ -2,18 +2,17 @@
 
 namespace App\Livewire\Admin\Pages;
 
-use App\Models\Page;
 use Livewire\Component;
-use Livewire\WithPagination;
 
+/**
+ * This component is no longer used — the pages list is now a standard
+ * Blade view served by PagesController::index().
+ * Kept to avoid class-not-found errors from any cached routes.
+ */
 class Lists extends Component
 {
-    use WithPagination;
-
     public function render()
     {
-        $pages = Page::paginate(10);
-
-        return view('livewire.admin.pages.lists', compact('pages'));
+        return view('livewire.admin.pages.lists');
     }
 }

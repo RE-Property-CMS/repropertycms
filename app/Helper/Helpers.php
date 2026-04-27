@@ -61,6 +61,22 @@ function download_s3_image_resize_store($path_url, $image_url, $width = null, $h
     return $path_url.'/'.$filename;
 }
 
+/**
+ * Return editable site content for a system page, falling back to the default.
+ * Results are cached per request so the DB is only hit once per page key.
+ */
+function sc(string $pageKey, string $field, string $default = ''): string
+{
+    static $cache = [];
+    if (! array_key_exists($pageKey, $cache)) {
+        $page = \App\Models\Page::where('key', $pageKey)->first();
+        $data = ($page && $page->gjs_data) ? json_decode($page->gjs_data, true) : [];
+        $cache[$pageKey] = is_array($data) ? $data : [];
+    }
+    $val = $cache[$pageKey][$field] ?? '';
+    return ($val !== '' && $val !== null) ? $val : $default;
+}
+
 function asset_s3($url)
 {
     if (config('filesystems.default') === 's3') {

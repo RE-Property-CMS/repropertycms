@@ -193,6 +193,20 @@ Route::prefix('setup')->name('setup.')->group(function () {
 | Demo Routes (demo branch only)
 |--------------------------------------------------------------------------
 */
+// ─── Demo Wizard Tour (read-only, no .env or DB writes) ──────────────────────
+Route::prefix('demo/wizard')->name('demo.wizard.')->middleware(['auth:admin', 'demo'])->group(function () {
+    Route::get('requirements', [\App\Http\Controllers\DemoWizardController::class, 'requirements'])->name('requirements');
+    Route::get('database',     [\App\Http\Controllers\DemoWizardController::class, 'database'])->name('database');
+    Route::get('admin',        [\App\Http\Controllers\DemoWizardController::class, 'admin'])->name('admin');
+    Route::get('mail',         [\App\Http\Controllers\DemoWizardController::class, 'mail'])->name('mail');
+    Route::get('stripe',       [\App\Http\Controllers\DemoWizardController::class, 'stripe'])->name('stripe');
+    Route::get('storage',      [\App\Http\Controllers\DemoWizardController::class, 'storage'])->name('storage');
+    Route::get('captcha',      [\App\Http\Controllers\DemoWizardController::class, 'captcha'])->name('captcha');
+    Route::get('branding',     [\App\Http\Controllers\DemoWizardController::class, 'branding'])->name('branding');
+    Route::get('complete',     [\App\Http\Controllers\DemoWizardController::class, 'complete'])->name('complete');
+    Route::get('finish',       [\App\Http\Controllers\DemoWizardController::class, 'finish'])->name('finish');
+});
+
 Route::get('/demo', [DemoController::class, 'landing'])->name('demo.landing');
 Route::post('/demo/start', [DemoController::class, 'start'])->name('demo.start');
 Route::get('/demo/check-email', [DemoController::class, 'checkEmail'])->name('demo.check-email');

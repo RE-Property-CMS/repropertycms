@@ -465,10 +465,30 @@ class SettingsController extends Controller
 
         // ── Demo mode: store in session, never touch the shared DB row or shared files ──
         if ($this->isDemo()) {
-            // Carry over any logo/favicon already in the demo session (don't overwrite shared public files)
+            $token    = session('demo_session_id');
             $existing = session('demo_brand_settings', []);
-            $data['logo_path']    = $existing['logo_path']    ?? DB::table('brand_settings')->value('logo_path');
-            $data['favicon_path'] = $existing['favicon_path'] ?? DB::table('brand_settings')->value('favicon_path');
+
+            // Handle logo/favicon uploads into an isolated demo directory
+            foreach (['logo', 'favicon'] as $field) {
+                if ($request->hasFile($field) && $request->file($field)->isValid()) {
+                    // Delete any previous demo upload for this field
+                    $prev = $existing[$field . '_path'] ?? null;
+                    if ($prev && str_starts_with($prev, 'images/brand/demo/') && file_exists(public_path($prev))) {
+                        @unlink(public_path($prev));
+                    }
+
+                    $dir = public_path('images/brand/demo/' . $token);
+                    if (! is_dir($dir)) {
+                        mkdir($dir, 0755, true);
+                    }
+                    $ext = $request->file($field)->guessExtension();
+                    $request->file($field)->move($dir, $field . '.' . $ext);
+                    $data[$field . '_path'] = 'images/brand/demo/' . $token . '/' . $field . '.' . $ext;
+                } else {
+                    // Keep whichever path is already in the session (could be demo upload or shared default)
+                    $data[$field . '_path'] = $existing[$field . '_path'] ?? DB::table('brand_settings')->value($field . '_path');
+                }
+            }
 
             session(['demo_brand_settings' => $data]);
 

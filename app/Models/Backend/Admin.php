@@ -26,6 +26,7 @@ class Admin extends Authenticatable
         'email',
         'password',
         'demo_session_id',
+        'is_super_admin',
     ];
 
     /**
@@ -45,5 +46,6 @@ class Admin extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_super_admin'    => 'boolean',
     ];
 }
