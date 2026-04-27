@@ -48,21 +48,49 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('setup.finish') }}">
-        @csrf
-        <button type="submit"
-            class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-lg text-base transition-colors duration-200 flex items-center justify-center gap-2">
+    <div x-data="{ finishing: false, error: '' }">
+        {{-- Finishing overlay --}}
+        <div x-show="finishing" x-cloak class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-4">
+            <svg class="w-10 h-10 animate-spin text-brand-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            <p class="text-gray-700 font-medium">Finalizing installation… please wait.</p>
+        </div>
+
+        <div x-show="error" x-cloak class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm" x-text="error"></div>
+
+        <button type="button" :disabled="finishing"
+            @click="
+                finishing = true; error = '';
+                fetch('{{ route('setup.finish') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: '{}'
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) { window.location.href = data.redirect; }
+                    else { error = data.message || 'An error occurred.'; finishing = false; }
+                })
+                .catch(e => { error = 'Request failed: ' + e.message; finishing = false; });
+            "
+            class="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold py-4 rounded-lg text-base transition-colors duration-200 flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             Complete Installation
         </button>
-    </form>
 
-    <div class="mt-4 text-center">
-        <a href="{{ route('setup.branding') }}" class="text-sm text-gray-400 hover:text-gray-600">
-            ← Go back and make changes
-        </a>
+        <div class="mt-4 text-center">
+            <a href="{{ route('setup.branding') }}" class="text-sm text-gray-400 hover:text-gray-600">
+                ← Go back and make changes
+            </a>
+        </div>
     </div>
 @endsection
 

@@ -92,6 +92,12 @@ Route::prefix('setup')->name('setup.')->group(function () {
 
     Route::post('database', [SetupController::class, 'saveDatabase'])
         ->name('database.save');
+
+    Route::get('migrating', [SetupController::class, 'migrating'])
+        ->name('migrating');
+
+    Route::get('migration-status', [SetupController::class, 'migrationStatus'])
+        ->name('migration-status');
     /*
     |--------------------------------------------------------------------------
     | Admin
@@ -189,8 +195,12 @@ Route::prefix('setup')->name('setup.')->group(function () {
 */
 Route::get('/demo', [DemoController::class, 'landing'])->name('demo.landing');
 Route::post('/demo/start', [DemoController::class, 'start'])->name('demo.start');
+Route::get('/demo/check-email', [DemoController::class, 'checkEmail'])->name('demo.check-email');
 Route::get('/demo/complete', [DemoController::class, 'complete'])->name('demo.complete');
 Route::get('/demo/{token}/end', [DemoController::class, 'end'])->name('demo.end');
+Route::get('/demo/{token}/enter/{role}', [DemoController::class, 'enter'])
+    ->name('demo.enter')
+    ->where('role', 'admin|agent');
 Route::get('/demo/{token}/{role}', [DemoController::class, 'switchRole'])
     ->name('demo.switch')
     ->where('role', 'admin|agent|buyer');
