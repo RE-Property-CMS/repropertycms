@@ -39,11 +39,19 @@ class EnvService
 
         file_put_contents($envPath, $envContent);
 
-        // On production, re-cache everything; on local just clear the cache
+        // Clear the config cache file directly to avoid Artisan context issues
+        // when called from within a web request (Artisan::call can throw uncatchable errors)
+        $configCache = base_path('bootstrap/cache/config.php');
+        if (file_exists($configCache)) {
+            @unlink($configCache);
+        }
+
         if (app()->isProduction()) {
-            Artisan::call('optimize');
-        } else {
-            Artisan::call('config:clear');
+            try {
+                Artisan::call('optimize');
+            } catch (\Throwable) {
+                // Best-effort: cache already cleared above
+            }
         }
     }
 }

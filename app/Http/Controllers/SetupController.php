@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Services\EnvService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
@@ -171,57 +170,58 @@ class SetupController extends Controller
 
     public function database()
     {
-        return view('setup.database');
+        $host     = config('database.connections.mysql.host', '');
+        $port     = config('database.connections.mysql.port', '3306');
+        $name     = config('database.connections.mysql.database', '');
+        $username = config('database.connections.mysql.username', '');
+        $hasPass  = !empty(config('database.connections.mysql.password'));
+
+        $configured = !empty($host) && !empty($name) && !empty($username);
+
+        return view('setup.database', compact('configured', 'host', 'port', 'name', 'username', 'hasPass'));
     }
 
-    public function saveDatabase(Request $request, EnvService $env)
+    public function saveDatabase(): JsonResponse
     {
-        $request->validate([
-            'db_host' => 'required|string',
-            'db_port' => 'required|numeric',
-            'db_name' => 'required|string',
-            'db_user' => 'required|string',
-            'db_pass' => 'nullable|string',
-        ]);
-
-        // Test connection before saving
         try {
-            config([
-                'database.connections.setup_test' => [
-                    'driver'    => 'mysql',
-                    'host'      => $request->db_host,
-                    'port'      => $request->db_port,
-                    'database'  => $request->db_name,
-                    'username'  => $request->db_user,
-                    'password'  => $request->db_pass ?? '',
-                    'charset'   => 'utf8mb4',
-                    'collation' => 'utf8mb4_unicode_ci',
-                ],
-            ]);
-            DB::connection('setup_test')->getPdo();
-            DB::purge('setup_test');
-        } catch (\Exception $e) {
-            return back()->withErrors(['db_error' => 'Database connection failed: ' . $e->getMessage()])->withInput();
+            DB::connection()->getPdo();
+
+            $statusFile = storage_path('setup-migrate-status.json');
+            file_put_contents($statusFile, json_encode([
+                'status'     => 'running',
+                'started_at' => now()->toISOString(),
+            ]));
+
+            // Fire detached subprocess — returns immediately, process continues in background
+            // Windows: start /B "" <title> prevents cmd from treating the first quoted arg as a window title
+            $php     = PHP_BINARY;
+            $artisan = base_path('artisan');
+            $log     = storage_path('setup-migrate.log');
+            $cmd     = 'start /B "" "' . $php . '" "' . $artisan . '" setup:run-migrations "' . $statusFile . '" > "' . $log . '" 2>&1';
+            pclose(popen($cmd, 'r'));
+
+            return response()->json(['success' => true, 'redirect' => route('setup.migrating')]);
+
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('saveDatabase: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function migrating()
+    {
+        return view('setup.migrating');
+    }
+
+    public function migrationStatus(): JsonResponse
+    {
+        $statusFile = storage_path('setup-migrate-status.json');
+
+        if (!file_exists($statusFile)) {
+            return response()->json(['status' => 'unknown']);
         }
 
-        // Write to .env
-        $env->set([
-            'DB_CONNECTION' => 'mysql',
-            'DB_HOST'       => $request->db_host,
-            'DB_PORT'       => $request->db_port,
-            'DB_DATABASE'   => $request->db_name,
-            'DB_USERNAME'   => $request->db_user,
-            'DB_PASSWORD'   => $request->db_pass ?? '',
-        ]);
-
-        // Run migrations against the newly configured database
-        try {
-            Artisan::call('migrate', ['--force' => true]);
-        } catch (\Exception $e) {
-            return back()->withErrors(['db_error' => 'Migrations failed: ' . $e->getMessage()])->withInput();
-        }
-
-        return redirect()->route('setup.admin');
+        return response()->json(json_decode(file_get_contents($statusFile), true));
     }
 
     /*
@@ -493,7 +493,7 @@ class SetupController extends Controller
         return view('setup.final', compact('setup'));
     }
 
-    public function finish(EnvService $env)
+    public function finish(Request $request, EnvService $env): JsonResponse
     {
         $setup = session('setup', []);
 
@@ -520,13 +520,24 @@ class SetupController extends Controller
             );
         }
 
-        // Seed required reference data (countries, states, amenities, plans)
-        Artisan::call('db:seed', ['--class' => 'SetupSeeder', '--force' => true]);
+        // No PHP timeout — seeder can take time
+        set_time_limit(0);
+
+        // Seed required reference data as a subprocess
+        $seeder = new \Symfony\Component\Process\Process(
+            [PHP_BINARY, 'artisan', 'db:seed', '--class=SetupSeeder', '--force'],
+            base_path()
+        );
+        $seeder->setTimeout(60);
+        $seeder->run();
 
         session()->flush();
 
-        return redirect('/admin/sign-in')
-            ->with('success', 'Installation complete! Please sign in with your admin credentials.');
+        return response()->json([
+            'success'  => true,
+            'redirect' => '/admin/sign-in',
+            'message'  => 'Installation complete! Please sign in with your admin credentials.',
+        ]);
     }
 
     /*

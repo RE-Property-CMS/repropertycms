@@ -91,6 +91,12 @@ Route::prefix('setup')->name('setup.')->group(function () {
 
     Route::post('database', [SetupController::class, 'saveDatabase'])
         ->name('database.save');
+
+    Route::get('migrating', [SetupController::class, 'migrating'])
+        ->name('migrating');
+
+    Route::get('migration-status', [SetupController::class, 'migrationStatus'])
+        ->name('migration-status');
     /*
     |--------------------------------------------------------------------------
     | Admin
