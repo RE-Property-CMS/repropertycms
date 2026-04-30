@@ -119,11 +119,10 @@
                         </td>
                         <td class="border px-4 py-3">
                             @if($isActive)
-                                <div class="flex gap-2 flex-wrap">
+                                <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;">
                                     {{-- Resend credentials --}}
                                     <form method="POST"
-                                          action="{{ route('admin.demo.sessions.resend', $session->id) }}"
-                                          class="inline">
+                                          action="{{ route('admin.demo.sessions.resend', $session->id) }}">
                                         @csrf
                                         <button type="submit" class="btn-blue text-sm py-1 px-3">
                                             <i class="fa fa-paper-plane mr-1"></i> Resend
@@ -133,8 +132,7 @@
                                     {{-- Revoke — requires SweetAlert2 confirmation --}}
                                     <form method="POST"
                                           action="{{ route('admin.demo.sessions.revoke', $session->id) }}"
-                                          id="revoke-form-{{ $session->id }}"
-                                          class="inline">
+                                          id="revoke-form-{{ $session->id }}">
                                         @csrf
                                         <button type="button"
                                                 onclick="confirmRevoke({{ $session->id }}, '{{ addslashes($session->lead_email ?? 'this session') }}')"
