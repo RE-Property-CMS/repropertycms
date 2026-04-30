@@ -71,7 +71,9 @@ class DemoInviteController extends Controller
         if ($existing) {
             return back()
                 ->withInput()
-                ->with('error', "An active invited demo already exists for {$request->email}. It expires " . $existing->expires_at->diffForHumans() . '.');
+                ->with('existing_session', $existing->id)
+                ->with('existing_email', $existing->lead_email)
+                ->with('existing_expires', $existing->expires_at->diffForHumans());
         }
 
         try {

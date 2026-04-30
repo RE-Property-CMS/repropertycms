@@ -16,10 +16,32 @@
         </a>
     </div>
 
-    {{-- Flash --}}
+    {{-- Flash error --}}
     @if(session('error'))
         <div class="mb-5 bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
             <i class="fa fa-circle-exclamation"></i> {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- Active session already exists — offer to resend --}}
+    @if(session('existing_session'))
+        <div class="mb-5 border border-amber-300 bg-amber-50 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-amber-100 border-b border-amber-200 flex items-center gap-2">
+                <i class="fa fa-triangle-exclamation text-amber-600"></i>
+                <span class="font-semibold text-amber-800 text-sm">Active demo already exists for {{ session('existing_email') }}</span>
+            </div>
+            <div class="px-4 py-4">
+                <p class="text-sm text-amber-700 mb-4">
+                    This person already has an active demo session — it expires <strong>{{ session('existing_expires') }}</strong>.
+                    If they didn't receive the email, you can resend their credentials below.
+                </p>
+                <form method="POST" action="{{ route('admin.demo.sessions.resend', session('existing_session')) }}">
+                    @csrf
+                    <button type="submit" class="btn-blue m-0">
+                        <i class="fa fa-paper-plane mr-1"></i> Resend Credentials to {{ session('existing_email') }}
+                    </button>
+                </form>
+            </div>
         </div>
     @endif
 
