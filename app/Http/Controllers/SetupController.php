@@ -39,28 +39,14 @@ class SetupController extends Controller
         try {
             $body = LicenseVerifier::call($key, $domain, $request->ip());
 
-            // A valid response carries a cryptographically signed payload.
-            // Plain {"valid":true} without data/sig is rejected — prevents mock-server bypass.
-            if (!isset($body['data'], $body['sig'])) {
+            if (!LicenseVerifier::verify($body)) {
                 $message = $body['message'] ?? 'Invalid license key.';
                 return back()->withErrors(['setup_key' => $message])->withInput();
             }
 
-            $rawData = base64_decode($body['data'], strict: true);
-            $rawSig  = base64_decode($body['sig'],  strict: true);
-
-            if ($rawData === false || $rawSig === false) {
-                return back()->withErrors(['setup_key' => 'Malformed license response.'])->withInput();
-            }
-
-            if (!LicenseVerifier::verify($rawData, $rawSig, $domain)) {
-                return back()->withErrors(['setup_key' => 'License signature verification failed.'])->withInput();
-            }
-
             session([
-                'setup_verified'        => true,
-                'setup_key_token'       => $key,
-                'setup_license_payload' => $body['data'] . '.' . $body['sig'],
+                'setup_verified'  => true,
+                'setup_key_token' => $key,
             ]);
 
             return redirect()->route('setup.requirements');
@@ -597,11 +583,9 @@ class SetupController extends Controller
         // Mark as installed only after all operations succeed
         $envVars = ['APP_INSTALLED' => 'true'];
 
-        // Store the full signed payload (data.sig) so LICENSE_KEY can be re-verified
-        // offline in future without hitting the API again.
-        $licensePayload = session('setup_license_payload');
-        if ($licensePayload) {
-            $envVars['LICENSE_KEY'] = $licensePayload;
+        $licenseKey = session('setup_key_token');
+        if ($licenseKey) {
+            $envVars['LICENSE_KEY'] = $licenseKey;
         }
 
         $env->set($envVars);
