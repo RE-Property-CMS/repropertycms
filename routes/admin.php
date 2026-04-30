@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\PagesController;
 use App\Http\Controllers\Backend\SettingsController;
 use App\Http\Controllers\Backend\DemoSeederController;
 use App\Http\Controllers\Backend\DemoInviteController;
+use App\Http\Controllers\Backend\LicenseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -115,6 +116,25 @@ Route::namespace('Backend')->group(function () {
                 Route::post('sessions/{id}/resend',  [DemoInviteController::class, 'resend'])->name('sessions.resend');
             });
         });
+
+    /*
+    |--------------------------------------------------------------------------
+    | License Management (owner installation only — LICENSE_OWNER=true)
+    |--------------------------------------------------------------------------
+    */
+        if (env('LICENSE_OWNER') === 'true') {
+            Route::prefix('licenses')->name('licenses.')->middleware(['super_admin'])->group(function () {
+                Route::get('/',                  [LicenseController::class, 'dashboard'])->name('dashboard');
+                Route::get('/buyers',            [LicenseController::class, 'buyers'])->name('buyers');
+                Route::get('/buyers/create',     [LicenseController::class, 'createBuyer'])->name('buyers.create');
+                Route::post('/buyers',           [LicenseController::class, 'storeBuyer'])->name('buyers.store');
+                Route::get('/keys',              [LicenseController::class, 'keys'])->name('keys');
+                Route::get('/keys/create',       [LicenseController::class, 'createKey'])->name('keys.create');
+                Route::post('/keys',             [LicenseController::class, 'storeKey'])->name('keys.store');
+                Route::post('/keys/{id}/revoke', [LicenseController::class, 'revokeKey'])->name('keys.revoke');
+                Route::get('/verifications',     [LicenseController::class, 'verifications'])->name('verifications');
+            });
+        }
 
     /*
     |--------------------------------------------------------------------------

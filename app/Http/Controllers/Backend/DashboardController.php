@@ -19,6 +19,22 @@ class DashboardController extends Controller
         $admin = Admin::where('id', '=', $id)->first();
         $request->session()->put('admin', $admin);
 
+        // Super Admin gets a separate lightweight dashboard
+        if ($admin?->is_super_admin) {
+            $demo = [
+                'total'        => DB::table('demo_sessions')->count(),
+                'self_service' => DB::table('demo_sessions')->where('type', 'self_service')->count(),
+                'invited'      => DB::table('demo_sessions')->where('type', 'invited')->count(),
+                'active'       => DB::table('demo_sessions')->where('expires_at', '>', now())->count(),
+                'expired'      => DB::table('demo_sessions')->where('expires_at', '<=', now())->count(),
+                'today'        => DB::table('demo_sessions')->whereDate('created_at', today())->count(),
+                'this_week'    => DB::table('demo_sessions')->where('created_at', '>=', now()->startOfWeek())->count(),
+                'this_month'   => DB::table('demo_sessions')->whereMonth('created_at', now()->month)
+                                    ->whereYear('created_at', now()->year)->count(),
+            ];
+            return view('admin.dashboard-super-admin', compact('demo'));
+        }
+
         // KPI Stats
         $totalAgents         = Agents::count();
         $newAgentsThisMonth  = Agents::whereMonth('created_at', now()->month)

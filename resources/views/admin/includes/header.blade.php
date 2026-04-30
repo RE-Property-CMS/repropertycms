@@ -16,6 +16,7 @@
               <span>Dashboard</span>
           </a>
       </li>
+      @if(!auth('admin')->user()?->is_super_admin)
       <li>
           <a href="{{url('admin/agent-listing')}}"><i class="fas fa-user pr-2"></i>
               <span>Agents</span>
@@ -36,6 +37,7 @@
               <span>Subscriber</span>
           </a>
       </li>
+      @endif
       @if(auth('admin')->user()?->is_super_admin)
       <li>
           <a href="{{route('admin.demo.sessions')}}"><i class="fas fa-flask pr-2"></i>
@@ -47,6 +49,13 @@
               <span>Page Builder</span>
           </a>
       </li>
+      @if(env('LICENSE_OWNER') === 'true')
+      <li>
+          <a href="{{route('admin.licenses.dashboard')}}"><i class="fas fa-key pr-2"></i>
+              <span>Licenses</span>
+          </a>
+      </li>
+      @endif
       @endif
       @if(session('demo_session_id'))
       <li>

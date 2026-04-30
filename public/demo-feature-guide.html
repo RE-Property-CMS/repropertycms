@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Feature Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1e293b;
+            background: #fff;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .page {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 56px 48px;
+        }
+
+        /* ── Header ── */
+        .doc-header {
+            border-bottom: 3px solid #1e3a5f;
+            padding-bottom: 28px;
+            margin-bottom: 36px;
+        }
+        .doc-header .label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .doc-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1e3a5f;
+            margin-bottom: 6px;
+        }
+        .doc-header .subtitle {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* ── Intro ── */
+        .intro {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin-bottom: 40px;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        /* ── Scenario cards ── */
+        .scenario {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 32px;
+            page-break-inside: avoid;
+        }
+        .scenario-header {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .scenario-header .icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+        .scenario-header .title-block .tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .scenario-header .title-block h2 {
+            font-size: 17px;
+            font-weight: 700;
+        }
+        .scenario-body {
+            padding: 20px 24px 24px;
+            background: #fff;
+        }
+
+        /* Scenario 1 — Self-Service */
+        .s1 .scenario-header { background: #eff6ff; }
+        .s1 .scenario-header .icon { background: #dbeafe; color: #2563eb; }
+        .s1 .scenario-header .tag { color: #2563eb; }
+        .s1 .scenario-header h2 { color: #1e3a5f; }
+
+        /* Scenario 2 — Invited */
+        .s2 .scenario-header { background: #f5f3ff; }
+        .s2 .scenario-header .icon { background: #ede9fe; color: #7c3aed; }
+        .s2 .scenario-header .tag { color: #7c3aed; }
+        .s2 .scenario-header h2 { color: #1e1b4b; }
+
+        /* ── Description ── */
+        .description {
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* ── Steps ── */
+        .steps-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .step .num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .s1 .num { background: #dbeafe; color: #1d4ed8; }
+        .s2 .num { background: #ede9fe; color: #6d28d9; }
+        .step .text {
+            font-size: 13.5px;
+            color: #334155;
+            padding-top: 3px;
+        }
+        .step .text strong { color: #1e293b; }
+
+        /* ── Key detail pills ── */
+        .details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .pill {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 11px;
+            border-radius: 99px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .pill-blue   { background: #dbeafe; color: #1e40af; }
+        .pill-purple { background: #ede9fe; color: #5b21b6; }
+        .pill-green  { background: #dcfce7; color: #166534; }
+        .pill-amber  { background: #fef3c7; color: #92400e; }
+
+        /* ── Comparison table ── */
+        .compare-section { margin-top: 36px; page-break-inside: avoid; }
+        .compare-section h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background: #1e3a5f;
+            color: #fff;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+        }
+        th:first-child { border-radius: 8px 0 0 0; }
+        th:last-child  { border-radius: 0 8px 0 0; }
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: top;
+        }
+        tr:nth-child(even) td { background: #f8fafc; }
+        tr:last-child td { border-bottom: none; }
+        td:first-child { font-weight: 600; color: #475569; width: 32%; }
+
+        /* ── Admin panel note ── */
+        .admin-note {
+            margin-top: 36px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 18px 22px;
+            page-break-inside: avoid;
+        }
+        .admin-note h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #166534;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .admin-note ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .admin-note li {
+            font-size: 13px;
+            color: #14532d;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .admin-note li::before {
+            content: '✓';
+            font-weight: 700;
+            color: #16a34a;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ── Footer ── */
+        .doc-footer {
+            margin-top: 48px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 18px;
+            font-size: 12px;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ── Print ── */
+        @media print {
+            body { font-size: 13px; }
+            .page { padding: 32px 36px; }
+            .no-print { display: none !important; }
+        }
+
+        /* ── Print button (hidden in PDF) ── */
+        .print-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: #1e3a5f;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 22px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,.18);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background .15s;
+        }
+        .print-btn:hover { background: #162d4a; }
+        @media print { .print-btn { display: none; } }
+    </style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">
+    🖨️ Save as PDF
+</button>
+
+<div class="page">
+
+    <!-- Header -->
+    <div class="doc-header">
+        <div class="label">Feature Guide</div>
+        <h1>Demo Access System</h1>
+        <div class="subtitle">How prospects experience your platform — two ways to get started</div>
+    </div>
+
+    <!-- Intro -->
+    <div class="intro">
+        Your platform offers two ways to give someone a live, private demo of the full system.
+        Each method creates a completely isolated sandbox with real data pre-loaded — the visitor
+        can explore every feature as Admin, Agent, or Buyer without any setup on their end.
+    </div>
+
+    <!-- ── Scenario 1 ─────────────────────────────────────────────────────── -->
+    <div class="scenario s1">
+        <div class="scenario-header">
+            <div class="icon">🌐</div>
+            <div class="title-block">
+                <div class="tag">Scenario 1</div>
+                <h2>Self-Service Demo</h2>
+            </div>
+        </div>
+        <div class="scenario-body">
+            <p class="description">
+                A prospect visits your public website, fills in a quick form, and instantly receives
+                their own private demo environment by email — no action needed from you.
+            </p>
+
+            <div class="steps-label">How it works</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="num">1</div>
+                    <div class="text">Prospect visits the <strong>Demo page</strong> on your website and enters their name and work email address.</div>
+                </div>
+                <div class="step">
+                    <div class="num">2</div>
+                    <div class="text">The system <strong>instantly creates a private sandbox</strong> — a unique Admin account, Agent account, and two pre-loaded properties just for them.</div>
+                </div>
+                <div class="step">
+                    <div class="num">3</div>
+                    <div class="text">An email lands in their inbox with <strong>their login credentials and direct access links</strong> for both the Admin and Agent portals.</div>
+                </div>
+                <div class="step">
+                    <div class="num">4</div>
+                    <div class="text">They click the link, log in with their credentials, and explore freely. When the session ends, <strong>all data is automatically deleted</strong>.</div>
+                </div>
+            </div>
+
+            <div class="details">
+                <span class="pill pill-blue">⏱ 60-minute session</span>
+                <span class="pill pill-blue">🔒 Fully isolated sandbox</span>
+                <span class="pill pill-blue">🗑 Auto-deleted on expiry</span>
+                <span class="pill pill-amber">📧 Work email required</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Scenario 2 ─────────────────────────────────────────────────────── -->
+    <div class="scenario s2">
+        <div class="scenario-header">
+            <div class="icon">✉️</div>
+            <div class="title-block">
+                <div class="tag">Scenario 2</div>
+                <h2>Owner-Invited Demo</h2>
+            </div>
+        </div>
+        <div class="scenario-body">
+            <p class="description">
+                You personally invite a specific prospect or organisation by entering their email in
+                your admin panel. They receive the same private demo experience — but with a generous
+                10-day window to explore at their own pace.
+            </p>
+
+            <div class="steps-label">How it works</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="num">1</div>
+                    <div class="text">You log in to your <strong>Admin Panel</strong> and go to <strong>Demo Sessions → Invite Someone</strong>.</div>
+                </div>
+                <div class="step">
+                    <div class="num">2</div>
+                    <div class="text">Enter the prospect's name and email address, then click <strong>Send Demo Invitation</strong>.</div>
+                </div>
+                <div class="step">
+                    <div class="num">3</div>
+                    <div class="text">The system creates their private sandbox and emails them their credentials — identical to the self-service flow.</div>
+                </div>
+                <div class="step">
+                    <div class="num">4</div>
+                    <div class="text">The prospect has <strong>10 full days</strong> to explore. You can monitor their session, resend their credentials if needed, or revoke access early from the admin panel.</div>
+                </div>
+            </div>
+
+            <div class="details">
+                <span class="pill pill-purple">📅 10-day session</span>
+                <span class="pill pill-purple">🔒 Fully isolated sandbox</span>
+                <span class="pill pill-green">✉️ Credentials can be resent</span>
+                <span class="pill pill-green">🚫 Revocable at any time</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison table -->
+    <div class="compare-section">
+        <h3>Quick Comparison</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Self-Service</th>
+                    <th>Owner-Invited</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Who starts it</td>
+                    <td>The prospect themselves</td>
+                    <td>You (the platform owner)</td>
+                </tr>
+                <tr>
+                    <td>Session duration</td>
+                    <td>60 minutes</td>
+                    <td>10 days</td>
+                </tr>
+                <tr>
+                    <td>Email required</td>
+                    <td>Yes — prospect enters it on-site</td>
+                    <td>Yes — you provide it</td>
+                </tr>
+                <tr>
+                    <td>Credentials delivery</td>
+                    <td>Automatic email to prospect</td>
+                    <td>Automatic email to prospect</td>
+                </tr>
+                <tr>
+                    <td>Resend credentials</td>
+                    <td>Via admin panel</td>
+                    <td>Via admin panel</td>
+                </tr>
+                <tr>
+                    <td>Revoke early</td>
+                    <td>Via admin panel</td>
+                    <td>Via admin panel</td>
+                </tr>
+                <tr>
+                    <td>Lead data stored</td>
+                    <td>Yes — name, email, IP</td>
+                    <td>Yes — name and email</td>
+                </tr>
+                <tr>
+                    <td>Data cleanup</td>
+                    <td>Auto-deleted on expiry</td>
+                    <td>Auto-deleted on expiry or revoke</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Admin panel capabilities -->
+    <div class="admin-note">
+        <h3>📊 What you can do from the Admin Panel</h3>
+        <ul>
+            <li>View every demo session — both self-service sign-ups and your sent invitations — in one place.</li>
+            <li>Filter sessions by status (Active / Expired) or by type (Self-Service / Invited).</li>
+            <li>Search by email to quickly find a specific prospect's session.</li>
+            <li>Resend credentials to any active session if the prospect didn't receive their email.</li>
+            <li>Revoke any active session immediately — with a confirmation step to prevent accidents.</li>
+            <li>Use the collected emails for follow-up marketing campaigns.</li>
+        </ul>
+    </div>
+
+    <!-- Footer -->
+    <div class="doc-footer">
+        <span>Demo Access System — Feature Guide</span>
+        <span>Confidential · For internal use</span>
+    </div>
+
+</div>
+
+</body>
+</html>
