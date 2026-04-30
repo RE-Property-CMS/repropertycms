@@ -39,7 +39,7 @@
                 autocomplete="off"
             >
             <p class="mt-2 text-xs text-gray-400">
-                The setup key was provided in the email received from <code class="bg-gray-100 px-1 rounded">RePropertyCMS</code>.
+                Your license key was included in the purchase confirmation email. Each key is unique to your account.
             </p>
         </div>
 

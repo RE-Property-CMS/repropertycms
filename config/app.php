@@ -148,15 +148,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Setup Wizard Key
+    | Licensing
     |--------------------------------------------------------------------------
     |
-    | This key is required to initiate the setup wizard on first install.
-    | Set SETUP_KEY in your .env file before beginning installation.
-    | Keep this secret — it protects against unauthorized setup attempts.
+    | The license key is verified during setup via a cryptographically signed
+    | API response. The verified payload is stored as LICENSE_KEY in .env after
+    | installation completes. The API endpoint is hardcoded in LicenseVerifier.
     |
     */
-    'setup_key' => env('SETUP_KEY', null),
 
     /*
     |--------------------------------------------------------------------------
