@@ -85,7 +85,7 @@
     </div>
 
     {{-- Integration cards grid --}}
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
 
         {{-- Mail --}}
         <div style="background:white;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.2s;"
@@ -223,6 +223,42 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $statuses['captcha'] ? 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' : 'M12 4v16m8-8H4' }}"/>
                     </svg>
                     {{ $statuses['captcha'] ? 'Update Settings' : 'Configure Now' }}
+                </a>
+            </div>
+        </div>
+
+        {{-- Google Maps --}}
+        <div style="background:white;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.2s;"
+            onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+            <div style="padding:20px 20px 0;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:44px;height:44px;background:{{ isset($statuses['maps']) && $statuses['maps'] ? '#eff6ff' : '#fef2f2' }};border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg style="width:20px;height:20px;color:{{ isset($statuses['maps']) && $statuses['maps'] ? '#2563eb' : '#dc2626' }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-weight:600;font-size:14px;color:#111827;">Google Maps</div>
+                            <div style="font-size:12px;color:#6b7280;margin-top:1px;">Property maps, address geocoding &amp; nearby places</div>
+                        </div>
+                    </div>
+                    @if(isset($statuses['maps']) && $statuses['maps'])
+                        <span style="background:#dbeafe;color:#1e40af;font-size:11px;font-weight:500;padding:3px 10px;border-radius:9999px;flex-shrink:0;">Configured</span>
+                    @else
+                        <span style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:500;padding:3px 10px;border-radius:9999px;flex-shrink:0;">Not Set</span>
+                    @endif
+                </div>
+            </div>
+            <div style="padding:0 20px 20px;">
+                <a href="{{ route('admin.settings.maps') }}"
+                    style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 0;background:{{ isset($statuses['maps']) && $statuses['maps'] ? 'white' : '#2563eb' }};color:{{ isset($statuses['maps']) && $statuses['maps'] ? '#2563eb' : 'white' }};border:1px solid #2563eb;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none;transition:all 0.15s;"
+                    onmouseover="this.style.background='{{ isset($statuses['maps']) && $statuses['maps'] ? '#eff6ff' : '#1d4ed8' }}'" onmouseout="this.style.background='{{ isset($statuses['maps']) && $statuses['maps'] ? 'white' : '#2563eb' }}'">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ isset($statuses['maps']) && $statuses['maps'] ? 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' : 'M12 4v16m8-8H4' }}"/>
+                    </svg>
+                    {{ isset($statuses['maps']) && $statuses['maps'] ? 'Update Settings' : 'Configure Now' }}
                 </a>
             </div>
         </div>

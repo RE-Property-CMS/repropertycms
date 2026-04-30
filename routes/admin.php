@@ -140,10 +140,15 @@ Route::namespace('Backend')->group(function () {
             Route::post('captcha', [SettingsController::class, 'saveCaptcha'])->name('captcha.save');
             Route::post('captcha/test', [SettingsController::class, 'testCaptcha'])->name('captcha.test');
 
+            Route::get('maps', [SettingsController::class, 'maps'])->name('maps');
+            Route::post('maps', [SettingsController::class, 'saveMaps'])->name('maps.save');
+
             Route::get('brand', [SettingsController::class, 'brand'])->name('brand');
             Route::post('brand', [SettingsController::class, 'saveBrand'])->name('brand.save');
 
             Route::get('docs', [SettingsController::class, 'docs'])->name('docs');
+            Route::get('docs/download', [SettingsController::class, 'downloadDocs'])->name('docs.download');
+            Route::get('docs/download-feature-guide', [SettingsController::class, 'downloadFeatureGuide'])->name('docs.download-feature-guide');
         });
     });
 

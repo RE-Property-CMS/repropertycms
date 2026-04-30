@@ -1,4 +1,4 @@
-@php $currentStep = 8; @endphp
+@php $currentStep = 9; @endphp
 @extends('layouts.setup')
 
 @section('title', 'Brand Identity')

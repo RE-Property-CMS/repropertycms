@@ -162,7 +162,15 @@ Route::prefix('setup')->name('setup.')->group(function () {
         ->name('captcha.skip');
     /*
     |--------------------------------------------------------------------------
-    | Brand Identity (Step 8 — skippable)
+    | Google Maps (Step 8 — skippable)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('maps', [SetupController::class, 'maps'])->name('maps');
+    Route::post('maps', [SetupController::class, 'saveMaps'])->name('maps.save');
+    Route::post('maps-skip', [SetupController::class, 'skipMaps'])->name('maps.skip');
+    /*
+    |--------------------------------------------------------------------------
+    | Brand Identity (Step 9 — skippable)
     |--------------------------------------------------------------------------
     */
     Route::get('branding', [SetupController::class, 'branding'])

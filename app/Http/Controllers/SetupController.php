@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Backend\Admin;
+use App\Services\LicenseVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Services\EnvService;
@@ -28,22 +29,51 @@ class SetupController extends Controller
 
     public function verifyKey(Request $request)
     {
-        $configKey = config('app.setup_key');
+        $key    = trim($request->input('setup_key', ''));
+        $domain = $request->getSchemeAndHttpHost();
 
-        if (!$configKey) {
-            return back()->withErrors([
-                'setup_key' => 'No setup key has been configured for this installation. Please contact RePropertyCMS Administration.',
-            ]);
+        if ($key === '') {
+            return back()->withErrors(['setup_key' => 'Please enter your license key.'])->withInput();
         }
 
-        if ($request->setup_key !== $configKey) {
+        try {
+            $body = LicenseVerifier::call($key, $domain, $request->ip());
+
+            // A valid response carries a cryptographically signed payload.
+            // Plain {"valid":true} without data/sig is rejected — prevents mock-server bypass.
+            if (!isset($body['data'], $body['sig'])) {
+                $message = $body['message'] ?? 'Invalid license key.';
+                return back()->withErrors(['setup_key' => $message])->withInput();
+            }
+
+            $rawData = base64_decode($body['data'], strict: true);
+            $rawSig  = base64_decode($body['sig'],  strict: true);
+
+            if ($rawData === false || $rawSig === false) {
+                return back()->withErrors(['setup_key' => 'Malformed license response.'])->withInput();
+            }
+
+            if (!LicenseVerifier::verify($rawData, $rawSig, $domain)) {
+                return back()->withErrors(['setup_key' => 'License signature verification failed.'])->withInput();
+            }
+
+            session([
+                'setup_verified'        => true,
+                'setup_key_token'       => $key,
+                'setup_license_payload' => $body['data'] . '.' . $body['sig'],
+            ]);
+
+            return redirect()->route('setup.requirements');
+
+        } catch (\Illuminate\Http\Client\ConnectionException) {
             return back()->withErrors([
-                'setup_key' => 'Invalid setup key. Please check the key you received from RePropertyCMS Administration.',
+                'setup_key' => 'Unable to reach the license server. Please check your internet connection and try again.',
+            ])->withInput();
+        } catch (\Throwable $e) {
+            return back()->withErrors([
+                'setup_key' => 'License verification error: ' . $e->getMessage(),
             ])->withInput();
         }
-
-        session(['setup_verified' => true]);
-        return redirect()->route('setup.requirements');
     }
 
     /*
@@ -424,13 +454,48 @@ class SetupController extends Controller
         $setup['captcha_skipped'] = false;
         session(['setup' => $setup]);
 
-        return redirect()->route('setup.branding');
+        return redirect()->route('setup.maps');
     }
 
     public function skipCaptcha()
     {
         $setup = session('setup', []);
         $setup['captcha_skipped'] = true;
+        session(['setup' => $setup]);
+
+        return redirect()->route('setup.maps');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STEP 8 — Google Maps (Skippable)
+    |--------------------------------------------------------------------------
+    */
+
+    public function maps()
+    {
+        return view('setup.maps');
+    }
+
+    public function saveMaps(Request $request, EnvService $env)
+    {
+        $request->validate([
+            'maps_api_key' => 'required|string',
+        ]);
+
+        $env->set(['GOOGLE_MAP_API_KEY' => $request->maps_api_key]);
+
+        $setup = session('setup', []);
+        $setup['maps_skipped'] = false;
+        session(['setup' => $setup]);
+
+        return redirect()->route('setup.branding');
+    }
+
+    public function skipMaps()
+    {
+        $setup = session('setup', []);
+        $setup['maps_skipped'] = true;
         session(['setup' => $setup]);
 
         return redirect()->route('setup.branding');
@@ -530,7 +595,16 @@ class SetupController extends Controller
         $seeder->run();
 
         // Mark as installed only after all operations succeed
-        $env->set(['APP_INSTALLED' => 'true']);
+        $envVars = ['APP_INSTALLED' => 'true'];
+
+        // Store the full signed payload (data.sig) so LICENSE_KEY can be re-verified
+        // offline in future without hitting the API again.
+        $licensePayload = session('setup_license_payload');
+        if ($licensePayload) {
+            $envVars['LICENSE_KEY'] = $licensePayload;
+        }
+
+        $env->set($envVars);
 
         session()->flush();
 

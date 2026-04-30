@@ -27,7 +27,7 @@ class SettingsController extends Controller
     public function index()
     {
         $integrations = DB::table('integration_settings')
-            ->whereIn('integration', ['mail', 'stripe', 'storage', 'captcha'])
+            ->whereIn('integration', ['mail', 'stripe', 'storage', 'captcha', 'maps'])
             ->pluck('is_setup', 'integration')
             ->toArray();
 
@@ -36,6 +36,7 @@ class SettingsController extends Controller
             'stripe'  => $integrations['stripe']  ?? false,
             'storage' => $integrations['storage'] ?? false,
             'captcha' => $integrations['captcha'] ?? false,
+            'maps'    => $integrations['maps']    ?? false,
         ];
 
         $demoExists = Agents::where('email', DemoSeederController::DEMO_EMAIL)->exists();
@@ -397,6 +398,46 @@ class SettingsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | Google Maps Settings
+    |--------------------------------------------------------------------------
+    */
+
+    public function maps()
+    {
+        $isDemo = $this->isDemo();
+
+        $current = $isDemo ? [
+            'api_key_set' => false,
+        ] : [
+            'api_key_set' => !empty(config('services.google_map.api_key')),
+        ];
+
+        return view('admin.settings.maps', compact('current', 'isDemo'));
+    }
+
+    public function saveMaps(Request $request, EnvService $env)
+    {
+        if ($this->isDemo()) {
+            return redirect()->back()->with('demo_notice', 'Google Maps settings cannot be changed in demo mode.');
+        }
+
+        $request->validate([
+            'maps_api_key' => 'required|string',
+        ]);
+
+        $env->set(['GOOGLE_MAP_API_KEY' => $request->maps_api_key]);
+
+        DB::table('integration_settings')->updateOrInsert(
+            ['integration' => 'maps'],
+            ['is_setup' => true, 'updated_at' => now(), 'created_at' => now()]
+        );
+
+        return redirect()->route('admin.settings.maps')
+            ->with('success', 'Google Maps settings saved successfully.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Brand & Appearance Settings
     |--------------------------------------------------------------------------
     */
@@ -420,9 +461,35 @@ class SettingsController extends Controller
 
     public function docs()
     {
-        $readmePath = base_path('README.md');
-        $markdown = file_exists($readmePath) ? file_get_contents($readmePath) : '# Documentation not found.';
-        return view('admin.settings.docs', compact('markdown'));
+        return view('admin.settings.docs');
+    }
+
+    public function downloadDocs()
+    {
+        $html = view('admin.settings.docs-word')->render();
+        $filename = str_replace(' ', '-', config('app.name')) . '-Admin-Documentation.doc';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-word')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+
+    public function downloadFeatureGuide()
+    {
+        $path = public_path('demo-feature-guide.html');
+
+        if (!file_exists($path)) {
+            abort(404, 'Feature guide not found.');
+        }
+
+        $html     = file_get_contents($path);
+        $filename = str_replace(' ', '-', config('app.name')) . '-Feature-Guide.doc';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-word')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 
     public function saveBrand(Request $request)
