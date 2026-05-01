@@ -49,7 +49,7 @@
               <span>Page Builder</span>
           </a>
       </li>
-      @if(env('LICENSE_OWNER') === 'true')
+      @if(config('app.license_owner'))
       <li>
           <a href="{{route('admin.licenses.dashboard')}}"><i class="fas fa-key pr-2"></i>
               <span>Licenses</span>

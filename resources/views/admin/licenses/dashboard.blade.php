@@ -28,24 +28,24 @@
     </div>
 
     {{-- Stat cards --}}
-    <div class="row g-3 mb-5">
+    <div class="grid grid-cols-4 gap-4 mb-5">
         @php
         $cards = [
-            ['label' => 'Total Buyers',       'value' => $stats['total_buyers'],       'icon' => 'fa-users',       'color' => 'blue'],
-            ['label' => 'Active Keys',         'value' => $stats['active_keys'],        'icon' => 'fa-key',         'color' => 'green'],
-            ['label' => 'Domains in Use',      'value' => $stats['domains_in_use'],     'icon' => 'fa-globe',       'color' => 'purple'],
-            ['label' => 'Verifications Today', 'value' => $stats['verifications_today'],'icon' => 'fa-shield-halved','color' => 'amber'],
+            ['label' => 'Total Buyers',       'value' => $stats['total_buyers'],        'icon' => 'fa-users',        'color' => 'blue',   'route' => route('admin.licenses.buyers')],
+            ['label' => 'Active Keys',         'value' => $stats['active_keys'],         'icon' => 'fa-key',          'color' => 'green',  'route' => route('admin.licenses.keys')],
+            ['label' => 'Domains in Use',      'value' => $stats['domains_in_use'],      'icon' => 'fa-globe',        'color' => 'purple', 'route' => route('admin.licenses.keys')],
+            ['label' => 'Verifications Today', 'value' => $stats['verifications_today'], 'icon' => 'fa-shield-halved','color' => 'amber',  'route' => route('admin.licenses.verifications')],
         ];
         $colorMap = [
-            'blue'   => 'bg-blue-50 border-blue-200 text-blue-700',
-            'green'  => 'bg-green-50 border-green-200 text-green-700',
-            'purple' => 'bg-purple-50 border-purple-200 text-purple-700',
-            'amber'  => 'bg-amber-50 border-amber-200 text-amber-700',
+            'blue'   => 'bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100',
+            'green'  => 'bg-green-50 border border-green-200 text-green-700 hover:bg-green-100',
+            'purple' => 'bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100',
+            'amber'  => 'bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100',
         ];
         @endphp
         @foreach($cards as $card)
-        <div class="col-6 col-md-3">
-            <div class="border rounded-xl p-4 {{ $colorMap[$card['color']] }}">
+        <a href="{{ $card['route'] }}" class="no-underline">
+            <div class="rounded-xl p-4 transition-all {{ $colorMap[$card['color']] }}">
                 <div class="flex items-center gap-3">
                     <i class="fa {{ $card['icon'] }} text-xl"></i>
                     <div>
@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
         @endforeach
     </div>
 

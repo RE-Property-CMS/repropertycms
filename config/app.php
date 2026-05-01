@@ -144,7 +144,8 @@ return [
     | Changing this manually in production may cause unexpected behavior.
     |
     */
-    'installed' => env('APP_INSTALLED', false),
+    'installed'     => env('APP_INSTALLED', false),
+    'license_owner' => env('LICENSE_OWNER', false),
 
     /*
     |--------------------------------------------------------------------------

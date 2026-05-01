@@ -122,7 +122,7 @@ Route::namespace('Backend')->group(function () {
     | License Management (owner installation only — LICENSE_OWNER=true)
     |--------------------------------------------------------------------------
     */
-        if (env('LICENSE_OWNER') === 'true') {
+        if (config('app.license_owner') === true) {
             Route::prefix('licenses')->name('licenses.')->middleware(['super_admin'])->group(function () {
                 Route::get('/',                  [LicenseController::class, 'dashboard'])->name('dashboard');
                 Route::get('/buyers',            [LicenseController::class, 'buyers'])->name('buyers');
