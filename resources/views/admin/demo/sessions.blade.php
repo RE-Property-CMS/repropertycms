@@ -79,7 +79,7 @@
                     <th class="px-4 py-2 text-left">Created</th>
                     <th class="px-4 py-2 text-left">Expires</th>
                     <th class="px-4 py-2 text-left">Status</th>
-                    <th class="px-4 py-2 text-left">Actions</th>
+                    <th class="px-4 py-2 text-left" style="width:100px;min-width:100px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -117,27 +117,31 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="border px-4 py-3">
+                        <td class="border px-3 py-3" style="width:100px;min-width:100px;">
                             @if($isActive)
-                                <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;">
-                                    {{-- Resend credentials --}}
-                                    <form method="POST"
-                                          action="{{ route('admin.demo.sessions.resend', $session->id) }}">
+                                <div style="display:flex;gap:6px;align-items:center;">
+                                    {{-- Resend --}}
+                                    <form method="POST" action="{{ route('admin.demo.sessions.resend', $session->id) }}">
                                         @csrf
-                                        <button type="submit" class="btn-blue text-sm py-1 px-3">
-                                            <i class="fa fa-paper-plane mr-1"></i> Resend
+                                        <button type="submit"
+                                                title="Resend credentials email"
+                                                style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;"
+                                                onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                                            <i class="fa fa-paper-plane"></i>
                                         </button>
                                     </form>
 
-                                    {{-- Revoke — requires SweetAlert2 confirmation --}}
+                                    {{-- Revoke --}}
                                     <form method="POST"
                                           action="{{ route('admin.demo.sessions.revoke', $session->id) }}"
                                           id="revoke-form-{{ $session->id }}">
                                         @csrf
                                         <button type="button"
+                                                title="Revoke demo session"
                                                 onclick="confirmRevoke({{ $session->id }}, '{{ addslashes($session->lead_email ?? 'this session') }}')"
-                                                class="btn-red text-sm py-1 px-3">
-                                            <i class="fa fa-ban mr-1"></i> Revoke
+                                                style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#dc2626;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;"
+                                                onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                                            <i class="fa fa-ban"></i>
                                         </button>
                                     </form>
                                 </div>
