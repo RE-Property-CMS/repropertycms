@@ -48,10 +48,6 @@
                                            class="button button-cyan py-1 px-2 mb-1 block" target="_blank">
                                             <i class="fa fa-eye mr-2"></i> Property Preview
                                         </a>
-                                        <a href="#"
-                                           class="button button-blue py-1 px-2 mb-1 block" target="_blank">
-                                            <i class="fa fa-eye mr-2"></i> Tutorials
-                                        </a>
                                     </div>
                                 @else
                                     <a class="nav-brand mr-auto ml-0"
