@@ -40,6 +40,7 @@
             >
             <p class="mt-2 text-xs text-gray-400">
                 Your license key was included in the purchase confirmation email. Each key is unique to your account.
+                Need help? Email <a href="mailto:sales@repropertycms.com" class="text-brand-600 hover:underline">sales@repropertycms.com</a>
             </p>
         </div>
 

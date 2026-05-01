@@ -90,7 +90,8 @@
         <div class="footer">
             This email was sent because someone requested a demo at
             <a href="{{ url('/') }}">{{ config('app.name') }}</a>.<br>
-            If this wasn't you, you can safely ignore this email.
+            If this wasn't you, you can safely ignore this email.<br><br>
+            Questions? Contact us at <a href="mailto:sales@repropertycms.com">sales@repropertycms.com</a>
         </div>
     </div>
 </div>
