@@ -12,4 +12,6 @@ class PropertyDocuments extends Model
     protected $table = 'property_documents';
 
     protected $primarykey = 'id';
+
+    protected $guarded = [];
 }
