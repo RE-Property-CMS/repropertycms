@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Mail\DemoCredentialsMail;
 use App\Models\Amenities;
 use App\Models\Agents;
 use App\Models\Backend\Admin;
@@ -18,7 +17,6 @@ use App\Models\PropertyImages;
 use App\Models\PropertyVideos;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -352,25 +350,18 @@ class DemoProvisioningService
             }
         }
 
-        // 5. Send credentials email as a detached background process so SMTP timeouts
-        //    never block or slow down the demo session creation response.
+        // 5. Dispatch credentials email as a queued job so SMTP never blocks the response
         $duration = $type === 'invited' ? '10 days' : '60 minutes';
 
-        $payload = base64_encode(json_encode([
-            'email'      => $email,
-            'leadName'   => $name,
-            'token'      => $token,
-            'adminEmail' => $admin->email,
-            'agentEmail' => $agent->email,
-            'password'   => $password,
-            'duration'   => $duration,
-        ]));
-
-        $php     = PHP_BINARY;
-        $artisan = base_path('artisan');
-        $log     = storage_path('logs/demo-mail.log');
-        $cmd     = 'start /B "" "' . $php . '" "' . $artisan . '" demo:send-credentials "' . $payload . '" >> "' . $log . '" 2>&1';
-        pclose(popen($cmd, 'r'));
+        \App\Jobs\SendDemoCredentialsJob::dispatch(
+            email:      $email,
+            leadName:   $name,
+            token:      $token,
+            adminEmail: $admin->email,
+            agentEmail: $agent->email,
+            password:   $password,
+            duration:   $duration,
+        );
 
         return $demoSession;
     }
