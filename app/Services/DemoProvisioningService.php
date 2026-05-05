@@ -125,16 +125,16 @@ class DemoProvisioningService
     // ─── Documents (PDFs only) ────────────────────────────────────────────────
 
     private const DOCUMENTS = [
-        ['file' => 'images/demo/Documents Upload/20230518_WB_WMBP-Orientation-Guide_001.pdf',        'name' => 'Orientation Guide'],
-        ['file' => 'images/demo/Documents Upload/Leavenworth+Adventure+Park+RLS+5.16.23[71].pdf',    'name' => 'Adventure Park Guide'],
-        ['file' => 'images/demo/Documents Upload/Leavenworth_Guide_2021-22_small.pdf',               'name' => 'Leavenworth Guide'],
-        ['file' => 'images/demo/Documents Upload/MartisCamp_Family_Barn.pdf',                        'name' => 'Martis Camp Family Barn'],
-        ['file' => 'images/demo/Documents Upload/Nordic_map_2020.pdf',                              'name' => 'Nordic Trail Map'],
-        ['file' => 'images/demo/Documents Upload/Northstar_winter-trail_map.pdf',                   'name' => 'Winter Trail Map'],
-        ['file' => 'images/demo/Documents Upload/www_martiscamp_com_about_martis_camp.pdf',          'name' => 'About Martis Camp'],
-        ['file' => 'images/demo/Documents Upload/www_martiscamp_com_camp_lodge.pdf',                 'name' => 'Camp Lodge'],
-        ['file' => 'images/demo/Documents Upload/www_martiscamp_com_lake_tahoe_golf.pdf',            'name' => 'Lake Tahoe Golf'],
-        ['file' => 'images/demo/Documents Upload/www_martiscamp_com_lake_tahoe_skiing.pdf',          'name' => 'Lake Tahoe Skiing'],
+        ['file' => 'images/demo/Documents/20230518_WB_WMBP-Orientation-Guide_001.pdf',        'name' => 'Orientation Guide'],
+        ['file' => 'images/demo/Documents/Leavenworth+Adventure+Park+RLS+5.16.23[71].pdf',    'name' => 'Adventure Park Guide'],
+        ['file' => 'images/demo/Documents/Leavenworth_Guide_2021-22_small.pdf',               'name' => 'Leavenworth Guide'],
+        ['file' => 'images/demo/Documents/MartisCamp_Family_Barn.pdf',                        'name' => 'Martis Camp Family Barn'],
+        ['file' => 'images/demo/Documents/Nordic_map_2020.pdf',                              'name' => 'Nordic Trail Map'],
+        ['file' => 'images/demo/Documents/Northstar_winter-trail_map.pdf',                   'name' => 'Winter Trail Map'],
+        ['file' => 'images/demo/Documents/www_martiscamp_com_about_martis_camp.pdf',          'name' => 'About Martis Camp'],
+        ['file' => 'images/demo/Documents/www_martiscamp_com_camp_lodge.pdf',                 'name' => 'Camp Lodge'],
+        ['file' => 'images/demo/Documents/www_martiscamp_com_lake_tahoe_golf.pdf',            'name' => 'Lake Tahoe Golf'],
+        ['file' => 'images/demo/Documents/www_martiscamp_com_lake_tahoe_skiing.pdf',          'name' => 'Lake Tahoe Skiing'],
     ];
 
     // ─── Demo property definitions ────────────────────────────────────────────
