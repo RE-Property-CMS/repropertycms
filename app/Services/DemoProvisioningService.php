@@ -352,17 +352,24 @@ class DemoProvisioningService
             }
         }
 
-        // 5. Send credentials email
+        // 5. Send credentials email — wrapped so a mail failure never blocks session creation
         $duration = $type === 'invited' ? '10 days' : '60 minutes';
 
-        Mail::to($email)->send(new DemoCredentialsMail(
-            leadName:   $name,
-            token:      $token,
-            adminEmail: $admin->email,
-            agentEmail: $agent->email,
-            password:   $password,
-            duration:   $duration,
-        ));
+        try {
+            Mail::to($email)->send(new DemoCredentialsMail(
+                leadName:   $name,
+                token:      $token,
+                adminEmail: $admin->email,
+                agentEmail: $agent->email,
+                password:   $password,
+                duration:   $duration,
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Demo credentials email failed: ' . $e->getMessage(), [
+                'email' => $email,
+                'token' => $token,
+            ]);
+        }
 
         return $demoSession;
     }
