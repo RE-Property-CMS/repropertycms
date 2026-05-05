@@ -352,24 +352,25 @@ class DemoProvisioningService
             }
         }
 
-        // 5. Send credentials email — wrapped so a mail failure never blocks session creation
+        // 5. Send credentials email as a detached background process so SMTP timeouts
+        //    never block or slow down the demo session creation response.
         $duration = $type === 'invited' ? '10 days' : '60 minutes';
 
-        try {
-            Mail::to($email)->send(new DemoCredentialsMail(
-                leadName:   $name,
-                token:      $token,
-                adminEmail: $admin->email,
-                agentEmail: $agent->email,
-                password:   $password,
-                duration:   $duration,
-            ));
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Demo credentials email failed: ' . $e->getMessage(), [
-                'email' => $email,
-                'token' => $token,
-            ]);
-        }
+        $payload = base64_encode(json_encode([
+            'email'      => $email,
+            'leadName'   => $name,
+            'token'      => $token,
+            'adminEmail' => $admin->email,
+            'agentEmail' => $agent->email,
+            'password'   => $password,
+            'duration'   => $duration,
+        ]));
+
+        $php     = PHP_BINARY;
+        $artisan = base_path('artisan');
+        $log     = storage_path('logs/demo-mail.log');
+        $cmd     = 'start /B "" "' . $php . '" "' . $artisan . '" demo:send-credentials "' . $payload . '" >> "' . $log . '" 2>&1';
+        pclose(popen($cmd, 'r'));
 
         return $demoSession;
     }
