@@ -5,7 +5,11 @@
                 <!-- Dispaly Agent Pofile photo here -->
                 @if(!is_null($agent->profile_image))
                     <div class="border-0 mb-3 agent-image text-center">
-                        <img src="{{ asset_s3($agent->profile_image) }}" class="d-block w-100 h-100">
+                        @if(str_starts_with($agent->profile_image, 'http'))
+                            <img src="{{ $agent->profile_image }}" class="d-block w-100 h-100">
+                        @else
+                            <img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->profile_image) }}" class="d-block w-100 h-100">
+                        @endif
                     </div>
                     <div class="property-social-media text-white mobile_position">
                         <p>Share the profile</p>
@@ -60,7 +64,11 @@
 
                 <!-- Dispaly Agent logo here -->
                 @if(!is_null($agent->logo_image))
-                    <span><img src="{{asset_s3($agent->logo_image)}}" class="pb-3 agent_logo" alt=""></span>
+                    @if(str_starts_with($agent->logo_image, 'http'))
+                        <span><img src="{{ $agent->logo_image }}" class="pb-3 agent_logo" alt=""></span>
+                    @else
+                        <span><img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->logo_image) }}" class="pb-3 agent_logo" alt=""></span>
+                    @endif
                 @endif
 
                 <!-- Dispaly Agent phone number here -->
