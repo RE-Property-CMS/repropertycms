@@ -22,6 +22,19 @@
         color: #FFF;
         padding: 30px;
     }
+
+    .fotorama__stage {
+        max-height: 90vh !important;
+    }
+
+    .fotorama__stage__frame {
+        max-height: 90vh !important;
+    }
+
+    .fotorama__img {
+        max-height: 90vh !important;
+        object-fit: cover !important;
+    }
 </style>
 <section class="">
     <div class="row m-0 p-0" wire:ignore>

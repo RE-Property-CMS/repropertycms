@@ -4,7 +4,7 @@
 
 .main-banner img,
 .main-banner video {
-    height: 100vh;
+    max-height: 90vh;
     object-fit: cover;
 }
 
@@ -134,7 +134,7 @@ h2 {
 }
 
 .main-banner img, .main-banner video {
-    height: 100vh !important;
+    max-height: 90vh !important;
 }
 
 .property_gallery_images {
