@@ -6,52 +6,77 @@
 @section('content')
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Setting Up Database</h1>
-        <p class="text-gray-500 mt-2">Running migrations in the background. This usually takes 10–30 seconds.</p>
+        <p class="text-gray-500 mt-2">Running migrations via background job. Usually completes in under 30 seconds.</p>
     </div>
 
     <div x-data="{
-        status: 'running',
-        total: 0,
-        done: 0,
-        message: 'Starting...',
+        status: 'queued',
+        message: 'Waiting for worker...',
         error: '',
-        dots: '.',
+        countdown: 30,
+        timer: null,
+        pollInterval: null,
+
         init() {
+            this.startCountdown();
+            this.startPolling();
+        },
+
+        startCountdown() {
+            this.timer = setInterval(() => {
+                if (this.countdown > 0) this.countdown--;
+            }, 1000);
+        },
+
+        startPolling() {
             this.poll();
-            setInterval(() => {
-                this.dots = this.dots.length >= 3 ? '.' : this.dots + '.';
-            }, 500);
+            this.pollInterval = setInterval(() => this.poll(), 3000);
         },
-        get percent() {
-            if (this.total === 0) return 0;
-            return Math.round((this.done / this.total) * 100);
-        },
+
         async poll() {
             try {
-                const res  = await fetch('{{ route('setup.migration-status') }}', { headers: { 'Accept': 'application/json' } });
+                const res  = await fetch('{{ route('setup.migration-status') }}', {
+                    headers: { 'Accept': 'application/json' }
+                });
                 const data = await res.json();
                 this.status  = data.status  || 'unknown';
-                this.total   = data.total   || 0;
-                this.done    = data.done    || 0;
                 this.message = data.message || '';
 
                 if (this.status === 'done') {
+                    clearInterval(this.timer);
+                    clearInterval(this.pollInterval);
                     window.location.href = '{{ route('setup.admin') }}';
                     return;
                 }
+
                 if (this.status === 'failed') {
+                    clearInterval(this.timer);
+                    clearInterval(this.pollInterval);
                     this.error = data.error || 'Migration failed.';
                     return;
                 }
-            } catch(e) {
-                // Server temporarily unreachable — keep polling
-            }
-            setTimeout(() => this.poll(), 2000);
+
+                if (this.countdown === 0) this.countdown = 15;
+
+            } catch(e) {}
+        },
+
+        get statusLabel() {
+            if (this.status === 'queued')  return 'Waiting for worker';
+            if (this.status === 'running') return 'Running migrations';
+            return 'Processing';
+        },
+
+        get barColor() {
+            if (this.status === 'queued')  return 'bg-yellow-400';
+            if (this.status === 'running') return 'bg-brand-600';
+            return 'bg-gray-400';
         }
     }">
 
-        {{-- Running state --}}
-        <div x-show="status === 'running' || status === 'unknown'" class="flex flex-col items-center py-10 gap-6">
+        {{-- Running / queued state --}}
+        <div x-show="status !== 'failed'" class="flex flex-col items-center py-10 gap-6">
+
             <div class="relative">
                 <div class="w-20 h-20 rounded-full border-4 border-brand-100 border-t-brand-600 animate-spin"></div>
                 <div class="absolute inset-0 flex items-center justify-center">
@@ -62,32 +87,44 @@
             </div>
 
             <div class="text-center">
-                <p class="text-lg font-semibold text-gray-800">Running migrations<span x-text="dots"></span></p>
+                <p class="text-lg font-semibold text-gray-800" x-text="statusLabel + '...'"></p>
                 <p class="text-sm text-gray-500 mt-1" x-text="message || 'Please keep this page open.'"></p>
             </div>
 
-            {{-- Progress bar (shown once total is known) --}}
-            <div x-show="total > 0" class="w-full max-w-sm">
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                    <span x-text="done + ' of ' + total + ' migrations'"></span>
-                    <span x-text="percent + '%'"></span>
+            {{-- Countdown --}}
+            <div class="flex flex-col items-center gap-1">
+                <p class="text-4xl font-bold text-brand-600" x-text="countdown"></p>
+                <p class="text-xs text-gray-400 uppercase tracking-widest">seconds estimated</p>
+            </div>
+
+            {{-- Progress bar --}}
+            <div class="w-full max-w-sm">
+                <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                    <div class="h-2 rounded-full transition-all duration-1000"
+                         :class="barColor"
+                         :style="'width:' + Math.max(5, 100 - (countdown / 30 * 100)) + '%'">
+                    </div>
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-2.5">
-                    <div class="bg-brand-600 h-2.5 rounded-full transition-all duration-500"
-                         :style="'width:' + percent + '%'"></div>
+                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>Started</span>
+                    <span>~30s</span>
                 </div>
             </div>
 
-            {{-- Static steps shown while waiting --}}
-            <div x-show="total === 0" class="w-full max-w-sm space-y-2 mt-2">
-                @foreach(['Creating tables', 'Setting up relationships', 'Applying indexes', 'Finalizing schema'] as $step)
-                <div class="flex items-center gap-3 text-sm text-gray-500">
-                    <svg class="w-4 h-4 text-brand-400 animate-pulse flex-shrink-0" fill="currentColor" viewBox="0 0 8 8">
-                        <circle cx="4" cy="4" r="3"/>
-                    </svg>
-                    {{ $step }}
+            {{-- Steps --}}
+            <div class="w-full max-w-sm space-y-2 mt-2">
+                <div class="flex items-center gap-3 text-sm" :class="status === 'queued' ? 'text-yellow-500' : 'text-green-600'">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>
+                    Job dispatched to queue
                 </div>
-                @endforeach
+                <div class="flex items-center gap-3 text-sm" :class="status === 'running' || status === 'done' ? 'text-green-600' : 'text-gray-400'">
+                    <svg class="w-4 h-4 flex-shrink-0" :class="status === 'running' ? 'animate-pulse' : ''" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>
+                    Running database migrations
+                </div>
+                <div class="flex items-center gap-3 text-sm" :class="status === 'done' ? 'text-green-600' : 'text-gray-400'">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>
+                    Redirecting to next step
+                </div>
             </div>
         </div>
 
@@ -100,7 +137,6 @@
                 <div>
                     <p class="font-semibold text-red-800 mb-1">Migration failed</p>
                     <p class="text-red-700 text-sm" x-text="error"></p>
-                    <p class="text-red-600 text-xs mt-2">Check <code class="bg-red-100 px-1 rounded">storage/setup-migrate.log</code> for the full error output.</p>
                 </div>
             </div>
             <a href="{{ route('setup.database') }}"
@@ -124,4 +160,4 @@
 @endsection
 
 @section('illustration_title', 'Building Your Database')
-@section('illustration_text', 'Migrations are running in the background. You will be redirected automatically.')
+@section('illustration_text', 'Your job is queued. The worker will complete it shortly and redirect you automatically.')

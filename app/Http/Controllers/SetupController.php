@@ -10,6 +10,8 @@ use App\Services\EnvService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class SetupController extends Controller
 {
@@ -202,31 +204,50 @@ class SetupController extends Controller
         try {
             DB::connection()->getPdo();
 
+            // Setup migrations tracking table
+            $migrator = app('migrator');
+            if (!$migrator->repositoryExists()) {
+                $migrator->getRepository()->createRepository();
+            }
+
+            // Create jobs table manually so the queue works before migrations run
+            if (!Schema::hasTable('jobs')) {
+                Schema::create('jobs', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->string('queue')->index();
+                    $table->longText('payload');
+                    $table->unsignedTinyInteger('attempts');
+                    $table->unsignedInteger('reserved_at')->nullable();
+                    $table->unsignedInteger('available_at');
+                    $table->unsignedInteger('created_at');
+                });
+            }
+
+            if (!Schema::hasTable('failed_jobs')) {
+                Schema::create('failed_jobs', function (Blueprint $table) {
+                    $table->id();
+                    $table->string('uuid')->unique();
+                    $table->text('connection');
+                    $table->text('queue');
+                    $table->longText('payload');
+                    $table->longText('exception');
+                    $table->timestamp('failed_at')->useCurrent();
+                });
+            }
+
+            // Write initial status
             $statusFile = storage_path('setup-migrate-status.json');
             file_put_contents($statusFile, json_encode([
-                'status'     => 'running',
-                'started_at' => now()->toISOString(),
+                'status'  => 'queued',
+                'message' => 'Job queued, waiting for worker...',
             ]));
 
-            // Fire detached subprocess — returns immediately, process continues in background
-            $php     = PHP_BINARY;
-            $artisan = base_path('artisan');
-            $log     = storage_path('setup-migrate.log');
-
-            if (PHP_OS_FAMILY === 'Windows') {
-                $cmd = 'start /B "" "' . $php . '" "' . $artisan . '" setup:run-migrations "' . $statusFile . '" > "' . $log . '" 2>&1';
-                pclose(popen($cmd, 'r'));
-            } else {
-                $cmd = 'nohup ' . escapeshellarg($php) . ' ' . escapeshellarg($artisan)
-                    . ' setup:run-migrations ' . escapeshellarg($statusFile)
-                    . ' >> ' . escapeshellarg($log) . ' 2>&1 &';
-                exec($cmd);
-            }
+            // Dispatch — queue worker picks this up immediately
+            \App\Jobs\RunSetupMigrationsJob::dispatch($statusFile);
 
             return response()->json(['success' => true, 'redirect' => route('setup.migrating')]);
 
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('saveDatabase: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
