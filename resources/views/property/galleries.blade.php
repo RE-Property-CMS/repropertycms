@@ -41,14 +41,32 @@
         @foreach($property_gallery_details as $key => $property_detail)
             <h2 class="px-0 mb-5 text-center property-page-title site-color"
                 style="margin-top: 40px">{{ $property_detail['gallery_name'] }}</h2>
-            <!-- Place somewhere in the <body> of your page -->
-            <div class="fotorama" data-nav="thumbs" data-allowfullscreen="native" data-fit="cover" data-width="100%">
+            <div class="fotorama-deferred" data-nav="thumbs" data-allowfullscreen="native" data-fit="cover" data-width="100%">
                 @foreach( $property_detail['images'] as $property_images_detail)
                     <a href="{{asset_s3($property_images_detail['file_name'])}}"
                        data-caption="{{ $property_detail['short_description'] }}"><img
-                                src="{{asset_s3($property_images_detail['thumb_name'])}}" loading="lazy"></a>
+                                src="{{asset_s3($property_images_detail['thumb_name'])}}"></a>
                 @endforeach
             </div>
         @endforeach
     </div>
 </section>
+
+<script>
+(function () {
+    var observer = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                var el = entry.target;
+                el.classList.remove('fotorama-deferred');
+                el.classList.add('fotorama');
+                obs.unobserve(el);
+            }
+        });
+    }, { rootMargin: '200px' });
+
+    document.querySelectorAll('.fotorama-deferred').forEach(function (el) {
+        observer.observe(el);
+    });
+})();
+</script>
