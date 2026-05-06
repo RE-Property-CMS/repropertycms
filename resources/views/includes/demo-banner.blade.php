@@ -79,9 +79,19 @@
             window.location.href = '/demo?expired=1';
             return;
         }
-        var m = Math.floor(remaining / 60);
+        var d = Math.floor(remaining / 86400);
+        var h = Math.floor((remaining % 86400) / 3600);
+        var m = Math.floor((remaining % 3600) / 60);
         var s = remaining % 60;
-        timerEl.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        var label;
+        if (d > 0) {
+            label = d + 'd ' + h + 'h';
+        } else if (h > 0) {
+            label = h + 'h ' + (m < 10 ? '0' : '') + m + 'm';
+        } else {
+            label = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        }
+        timerEl.textContent = label;
         if (remaining <= 300) timerEl.style.color = '#f59e0b'; // amber at 5 min
         if (remaining <= 60)  timerEl.style.color = '#f87171'; // red at 1 min
     }
