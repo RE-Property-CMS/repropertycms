@@ -74,11 +74,11 @@ class SetupController extends Controller
             config([
                 'database.connections.setup_test' => [
                     'driver'    => 'mysql',
-                    'host'      => $request->db_host ?? '127.0.0.1',
-                    'port'      => $request->db_port ?? 3306,
-                    'database'  => $request->db_name ?? '',
-                    'username'  => $request->db_user ?? '',
-                    'password'  => $request->db_pass ?? '',
+                    'host'      => $request->db_host ?? config('database.connections.mysql.host', '127.0.0.1'),
+                    'port'      => $request->db_port ?? config('database.connections.mysql.port', 3306),
+                    'database'  => $request->db_name ?? config('database.connections.mysql.database', ''),
+                    'username'  => $request->db_user ?? config('database.connections.mysql.username', ''),
+                    'password'  => $request->db_pass ?? config('database.connections.mysql.password', ''),
                     'charset'   => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                 ],
