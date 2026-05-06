@@ -7,11 +7,10 @@ use App\Services\LicenseVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Services\EnvService;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 
 class SetupController extends Controller
 {
@@ -210,29 +209,12 @@ class SetupController extends Controller
                 $migrator->getRepository()->createRepository();
             }
 
-            // Create jobs table manually so the queue works before migrations run
-            if (!Schema::hasTable('jobs')) {
-                Schema::create('jobs', function (Blueprint $table) {
-                    $table->bigIncrements('id');
-                    $table->string('queue')->index();
-                    $table->longText('payload');
-                    $table->unsignedTinyInteger('attempts');
-                    $table->unsignedInteger('reserved_at')->nullable();
-                    $table->unsignedInteger('available_at');
-                    $table->unsignedInteger('created_at');
-                });
-            }
-
-            if (!Schema::hasTable('failed_jobs')) {
-                Schema::create('failed_jobs', function (Blueprint $table) {
-                    $table->id();
-                    $table->string('uuid')->unique();
-                    $table->text('connection');
-                    $table->text('queue');
-                    $table->longText('payload');
-                    $table->longText('exception');
-                    $table->timestamp('failed_at')->useCurrent();
-                });
+            // Run jobs/failed_jobs migrations via Artisan so they get proper history
+            foreach (glob(database_path('migrations/*job*')) as $file) {
+                Artisan::call('migrate', [
+                    '--path'  => 'database/migrations/' . basename($file),
+                    '--force' => true,
+                ]);
             }
 
             // Write initial status
