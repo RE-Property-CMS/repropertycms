@@ -107,7 +107,7 @@
     <div style="display:flex;align-items:stretch;gap:0;border-radius:12px;overflow:hidden;border:1px solid #bfdbfe;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(37,99,235,.08);">
         {{-- Property thumbnail --}}
         <div style="flex-shrink:0;width:140px;min-height:90px;position:relative;overflow:hidden;">
-            <img src="{{ asset('images/demo/publish-property-banner.jpg') }}" alt="101505 Valhalla Drive"
+            <img src="{{ asset('images/demo/Images/Exteriors/Front_driveway.jpg') }}" alt="101505 Valhalla Drive"
                  style="width:100%;height:100%;object-fit:cover;display:block;">
             <div style="position:absolute;inset:0;background:linear-gradient(to right,transparent 60%,rgba(239,246,255,0.6));"></div>
         </div>
