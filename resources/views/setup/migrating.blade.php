@@ -11,6 +11,9 @@
 
     <div x-data="{
         status: 'running',
+        total: 0,
+        done: 0,
+        message: 'Starting...',
         error: '',
         dots: '.',
         init() {
@@ -19,31 +22,36 @@
                 this.dots = this.dots.length >= 3 ? '.' : this.dots + '.';
             }, 500);
         },
+        get percent() {
+            if (this.total === 0) return 0;
+            return Math.round((this.done / this.total) * 100);
+        },
         async poll() {
             try {
-                const res = await fetch('{{ route('setup.migration-status') }}', {
-                    headers: { 'Accept': 'application/json' }
-                });
+                const res  = await fetch('{{ route('setup.migration-status') }}', { headers: { 'Accept': 'application/json' } });
                 const data = await res.json();
-                this.status = data.status || 'unknown';
+                this.status  = data.status  || 'unknown';
+                this.total   = data.total   || 0;
+                this.done    = data.done    || 0;
+                this.message = data.message || '';
 
                 if (this.status === 'done') {
                     window.location.href = '{{ route('setup.admin') }}';
                     return;
                 }
                 if (this.status === 'failed') {
-                    this.error = data.error || 'Migration failed. Check storage/setup-migrate.log for details.';
+                    this.error = data.error || 'Migration failed.';
                     return;
                 }
             } catch(e) {
                 // Server temporarily unreachable — keep polling
             }
-            setTimeout(() => this.poll(), 3000);
+            setTimeout(() => this.poll(), 2000);
         }
     }">
 
         {{-- Running state --}}
-        <div x-show="status === 'running' || status === 'unknown'" class="flex flex-col items-center py-12 gap-6">
+        <div x-show="status === 'running' || status === 'unknown'" class="flex flex-col items-center py-10 gap-6">
             <div class="relative">
                 <div class="w-20 h-20 rounded-full border-4 border-brand-100 border-t-brand-600 animate-spin"></div>
                 <div class="absolute inset-0 flex items-center justify-center">
@@ -52,13 +60,26 @@
                     </svg>
                 </div>
             </div>
+
             <div class="text-center">
                 <p class="text-lg font-semibold text-gray-800">Running migrations<span x-text="dots"></span></p>
-                <p class="text-sm text-gray-500 mt-1">Please keep this page open.</p>
+                <p class="text-sm text-gray-500 mt-1" x-text="message || 'Please keep this page open.'"></p>
             </div>
 
-            {{-- Progress steps --}}
-            <div class="w-full max-w-sm space-y-2 mt-2">
+            {{-- Progress bar (shown once total is known) --}}
+            <div x-show="total > 0" class="w-full max-w-sm">
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span x-text="done + ' of ' + total + ' migrations'"></span>
+                    <span x-text="percent + '%'"></span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div class="bg-brand-600 h-2.5 rounded-full transition-all duration-500"
+                         :style="'width:' + percent + '%'"></div>
+                </div>
+            </div>
+
+            {{-- Static steps shown while waiting --}}
+            <div x-show="total === 0" class="w-full max-w-sm space-y-2 mt-2">
                 @foreach(['Creating tables', 'Setting up relationships', 'Applying indexes', 'Finalizing schema'] as $step)
                 <div class="flex items-center gap-3 text-sm text-gray-500">
                     <svg class="w-4 h-4 text-brand-400 animate-pulse flex-shrink-0" fill="currentColor" viewBox="0 0 8 8">

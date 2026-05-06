@@ -209,12 +209,19 @@ class SetupController extends Controller
             ]));
 
             // Fire detached subprocess — returns immediately, process continues in background
-            // Windows: start /B "" <title> prevents cmd from treating the first quoted arg as a window title
             $php     = PHP_BINARY;
             $artisan = base_path('artisan');
             $log     = storage_path('setup-migrate.log');
-            $cmd     = 'start /B "" "' . $php . '" "' . $artisan . '" setup:run-migrations "' . $statusFile . '" > "' . $log . '" 2>&1';
-            pclose(popen($cmd, 'r'));
+
+            if (PHP_OS_FAMILY === 'Windows') {
+                $cmd = 'start /B "" "' . $php . '" "' . $artisan . '" setup:run-migrations "' . $statusFile . '" > "' . $log . '" 2>&1';
+                pclose(popen($cmd, 'r'));
+            } else {
+                $cmd = 'nohup ' . escapeshellarg($php) . ' ' . escapeshellarg($artisan)
+                    . ' setup:run-migrations ' . escapeshellarg($statusFile)
+                    . ' >> ' . escapeshellarg($log) . ' 2>&1 &';
+                exec($cmd);
+            }
 
             return response()->json(['success' => true, 'redirect' => route('setup.migrating')]);
 
