@@ -353,6 +353,13 @@ class DemoProvisioningService
         // 5. Dispatch credentials email as a queued job so SMTP never blocks the response
         $duration = $type === 'invited' ? '10 days' : '60 minutes';
 
+        \Illuminate\Support\Facades\Log::info('[DemoProvisioning] Dispatching credentials email job', [
+            'to'    => $email,
+            'token' => $token,
+            'type'  => $type,
+            'queue' => config('queue.default'),
+        ]);
+
         \App\Jobs\SendDemoCredentialsJob::dispatch(
             email:      $email,
             leadName:   $name,
