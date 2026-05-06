@@ -23,7 +23,7 @@
                             <div class="text-center fp-image">
                                 <img src="{{ asset_s3($property_floorplan->file_name) }}"
                                      class="cursor-pointer img-fluid floorplan-img"
-                                     style="touch-action: pan-x pan-y;">
+                                     style="touch-action: pan-x pan-y;" loading="lazy">
                                 @foreach($property_floorplan->hotspots as $hotspot)
                                     <div class='photo-box' data-html='true' data-sanitize='false'
                                          data-areaid='{{ $hotspot->id }}' data-title='' data-toggle='popover'

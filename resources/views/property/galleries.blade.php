@@ -46,7 +46,7 @@
                 @foreach( $property_detail['images'] as $property_images_detail)
                     <a href="{{asset_s3($property_images_detail['file_name'])}}"
                        data-caption="{{ $property_detail['short_description'] }}"><img
-                                src="{{asset_s3($property_images_detail['thumb_name'])}}"></a>
+                                src="{{asset_s3($property_images_detail['thumb_name'])}}" loading="lazy"></a>
                 @endforeach
             </div>
         @endforeach

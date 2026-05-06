@@ -4,11 +4,11 @@
             @if(!is_null($property->bedroom))
                 @if(!empty($property->bedroom_image))
                     <div class="col-6 col-md-4 p-0 order-0">
-                        <img src="{{asset_s3($property->bedroom_image)}}" class="feature-property-img" alt="">
+                        <img src="{{asset_s3($property->bedroom_image)}}" class="feature-property-img" alt="" loading="lazy">
                     </div>
                 @else
                     <div class="col-6 col-md-4 p-0 order-0">
-                        <img src="{{asset('images/placeholder-bedroom.jpg')}}" class="feature-property-img" alt="">
+                        <img src="{{asset('images/placeholder-bedroom.jpg')}}" class="feature-property-img" alt="" loading="lazy">
                     </div>
                 @endif
 
@@ -22,11 +22,11 @@
             @if(!is_null($property->bathroom))
                 @if(!empty($property->bathroom_image))
                     <div class="col-6 col-md-4 p-0 order-3 order-md-2">
-                        <img src="{{asset_s3($property->bathroom_image)}}" class="feature-property-img" alt="">
+                        <img src="{{asset_s3($property->bathroom_image)}}" class="feature-property-img" alt="" loading="lazy">
                     </div>
                 @else
                     <div class="col-6 col-md-4 p-0 order-3 order-md-2">
-                        <img src="{{asset('images/placeholder-fireplace-room.jpg')}}" class="feature-property-img" alt="">
+                        <img src="{{asset('images/placeholder-fireplace-room.jpg')}}" class="feature-property-img" alt="" loading="lazy">
                     </div>
                 @endif
 
@@ -40,11 +40,11 @@
             @if(!is_null( $property->levels ))
                 @if(!empty($property->levels_image))
                     <div class="col-6 col-md-4 p-0 order-4">
-                        <img src="{{asset_s3($property->levels_image)}}" class="feature-property-img" alt="">
+                        <img src="{{asset_s3($property->levels_image)}}" class="feature-property-img" alt="" loading="lazy">
                     </div>
                 @else
                     <div class="col-6 col-md-4 p-0 order-4">
-                        <img src="{{asset('images/placeholder-living-room.jpg')}}" class="feature-property-img" alt="">
+                        <img src="{{asset('images/placeholder-living-room.jpg')}}" class="feature-property-img" alt="" loading="lazy">
                     </div>
                 @endif
 

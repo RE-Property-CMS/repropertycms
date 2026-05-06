@@ -6,9 +6,9 @@
                 @if(!is_null($agent->profile_image))
                     <div class="border-0 mb-3 agent-image text-center">
                         @if(str_starts_with($agent->profile_image, 'http'))
-                            <img src="{{ $agent->profile_image }}" class="d-block w-100 h-100">
+                            <img src="{{ $agent->profile_image }}" class="d-block w-100 h-100" loading="lazy">
                         @else
-                            <img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->profile_image) }}" class="d-block w-100 h-100">
+                            <img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->profile_image) }}" class="d-block w-100 h-100" loading="lazy">
                         @endif
                     </div>
                     <div class="property-social-media text-white mobile_position">
@@ -65,9 +65,9 @@
                 <!-- Dispaly Agent logo here -->
                 @if(!is_null($agent->logo_image))
                     @if(str_starts_with($agent->logo_image, 'http'))
-                        <span><img src="{{ $agent->logo_image }}" class="pb-3 agent_logo" alt=""></span>
+                        <span><img src="{{ $agent->logo_image }}" class="pb-3 agent_logo" alt="" loading="lazy"></span>
                     @else
-                        <span><img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->logo_image) }}" class="pb-3 agent_logo" alt=""></span>
+                        <span><img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->logo_image) }}" class="pb-3 agent_logo" alt="" loading="lazy"></span>
                     @endif
                 @endif
 
