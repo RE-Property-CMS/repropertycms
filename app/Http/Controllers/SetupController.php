@@ -563,18 +563,17 @@ class SetupController extends Controller
 
     public function finish(EnvService $env): JsonResponse
     {
-        $setup = session('setup', []);
-
         // Mark app as installed in .env
         $env->set(['APP_INSTALLED' => 'true']);
 
-        // Record integration configuration status in the database
+        // Determine configuration status from actual .env values (session may be lost)
         $integrations = [
             ['integration' => 'app',     'is_setup' => true],
-            ['integration' => 'mail',    'is_setup' => !($setup['mail_skipped']    ?? true)],
-            ['integration' => 'stripe',  'is_setup' => !($setup['stripe_skipped']  ?? true)],
-            ['integration' => 'storage', 'is_setup' => !($setup['storage_skipped'] ?? true)],
-            ['integration' => 'captcha', 'is_setup' => !($setup['captcha_skipped'] ?? true)],
+            ['integration' => 'mail',    'is_setup' => !empty(config('mail.mailers.smtp.host'))
+                                                       && config('mail.mailers.smtp.host') !== '127.0.0.1'],
+            ['integration' => 'stripe',  'is_setup' => !empty(env('STRIPE_KEY'))],
+            ['integration' => 'storage', 'is_setup' => config('filesystems.default') !== 'local'],
+            ['integration' => 'captcha', 'is_setup' => !empty(config('services.recaptcha.site_key'))],
         ];
 
         foreach ($integrations as $record) {
