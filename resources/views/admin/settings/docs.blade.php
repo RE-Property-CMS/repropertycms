@@ -148,6 +148,7 @@
                 <tr><td>Floor Plans</td><td>Upload floor plan images with interactive hotspots</td></tr>
                 <tr><td>Videos</td><td>YouTube, Vimeo, or direct video links</td></tr>
                 <tr><td>3D Tour</td><td>Matterport embed for virtual walkthroughs</td></tr>
+                <tr><td>360° Panorama</td><td>Pannellum-powered panoramic viewer</td></tr>
                 <tr><td>Documents</td><td>PDF brochures and attachments</td></tr>
                 <tr><td>Map</td><td>Google Maps integration with address lookup</td></tr>
                 <tr><td>Amenities</td><td>Tag-based feature listing</td></tr>
