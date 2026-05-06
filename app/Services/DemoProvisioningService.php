@@ -229,16 +229,8 @@ class DemoProvisioningService
             'demo_session_id'   => $token,
         ]);
 
-        // Copy demo profile photo
-        $agentImageDir = public_path('files/agents/' . $agent->id);
-        if (! is_dir($agentImageDir)) {
-            mkdir($agentImageDir, 0755, true);
-        }
-        $demoAgentSrc = public_path('images/demo/agent.jpg');
-        if (file_exists($demoAgentSrc)) {
-            copy($demoAgentSrc, $agentImageDir . '/agent.jpg');
-            $agent->update(['profile_image' => 'agent.jpg']);
-        }
+        // Point directly to the shared demo agent photo (no copy needed)
+        $agent->update(['profile_image' => url('images/demo/agent.jpg')]);
 
         // 3. Create demo session record
         $demoSession = DemoSession::create([

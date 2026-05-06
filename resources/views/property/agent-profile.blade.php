@@ -6,9 +6,9 @@
                 @if(!is_null($agent->profile_image))
                     <div class="border-0 mb-3 agent-image text-center">
                         @if(str_starts_with($agent->profile_image, 'http'))
-                            <img src="{{ $agent->profile_image }}" class="d-block w-100 h-100" loading="lazy">
+                            <img src="{{ $agent->profile_image }}" class="d-block w-100" loading="lazy">
                         @else
-                            <img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->profile_image) }}" class="d-block w-100 h-100" loading="lazy">
+                            <img src="{{ asset('/files/agents/' . $agent->id . '/' . $agent->profile_image) }}" class="d-block w-100" loading="lazy">
                         @endif
                     </div>
                     <div class="property-social-media text-white mobile_position">

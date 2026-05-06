@@ -7,7 +7,7 @@
                 @if(!is_null($agents->profile_image))
                     <div class="border-0 mb-3 agent-image text-center">
                         @if(str_starts_with($agents->profile_image, 'http'))
-                            <img src="{{$agents->profile_image}}" class="d-block w-100 h-100" loading="lazy">
+                            <img src="{{$agents->profile_image}}" class="d-block w-100" loading="lazy">
                         @else
                             <img src="{{asset('/files/agents/')}}/{{$agents->id}}/{{$agents->profile_image}}"
                                  alt="" loading="lazy">
