@@ -550,11 +550,18 @@ class SetupController extends Controller
 
     public function final()
     {
-        $setup = session('setup', []);
+        $setup = [
+            'mail_skipped'    => empty(config('mail.mailers.smtp.host'))
+                                 || config('mail.mailers.smtp.host') === '127.0.0.1',
+            'stripe_skipped'  => empty(env('STRIPE_KEY')),
+            'storage_skipped' => config('filesystems.default', 'local') === 'local',
+            'captcha_skipped' => empty(config('services.recaptcha.site_key')),
+            'maps_skipped'    => empty(config('services.google_map.api_key')),
+        ];
         return view('setup.final', compact('setup'));
     }
 
-    public function finish(Request $request, EnvService $env): JsonResponse
+    public function finish(EnvService $env): JsonResponse
     {
         $setup = session('setup', []);
 
