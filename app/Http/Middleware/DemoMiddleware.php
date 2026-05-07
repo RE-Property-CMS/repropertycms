@@ -21,12 +21,17 @@ class DemoMiddleware
             return $next($request);
         }
 
-        // Invited demo admins arrive directly from the email link with no session token.
-        // If their admin account has a demo_session_id, populate the session automatically.
+        // Invited users arrive directly from the email link with no session token.
+        // Auto-populate the session from whichever guard is authenticated.
         if (Auth::guard('admin')->check()) {
             $demoAdminToken = Auth::guard('admin')->user()->demo_session_id;
             if ($demoAdminToken && ! session('demo_session_id')) {
                 session(['demo_session_id' => $demoAdminToken]);
+            }
+        } elseif (Auth::guard('agent')->check()) {
+            $demoAgentToken = Auth::guard('agent')->user()->demo_session_id;
+            if ($demoAgentToken && ! session('demo_session_id')) {
+                session(['demo_session_id' => $demoAgentToken]);
             }
         }
 
