@@ -6,7 +6,7 @@
          x-transition:enter-end="opacity-100">
         <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
             <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);" @click="$wire.closeModal()"></div>
-            <div style="position:relative;background:white;border-radius:14px;width:100%;max-width:520px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;"
+            <div style="position:relative;background:white;border-radius:14px;width:70vw;max-width:900px;min-width:320px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 scale-95 translate-y-2"
                  x-transition:enter-end="opacity-100 scale-100 translate-y-0">
@@ -39,7 +39,7 @@
                                     that size may be dropped. Please let us know if you have trouble
                                     uploading.</p>
                                 <div class="my-5">
-                                    <button id="addFiles" class="button button-blue p-3" data-ripple-light="true">Add Images</button>
+                                    <button type="submit" class="button button-blue p-3">Add Images</button>
                                 </div>
                             </div>
                         </div>
