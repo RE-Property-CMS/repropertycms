@@ -153,6 +153,94 @@ class PropertyImagesController extends Controller
             $degrees = $request->degrees;
             $degrees = $degrees * -1;
 
+            // Public-folder image (e.g. images/demo/... or any public path not matching other prefixes)
+            if (str_starts_with($property_image->file_name, 'images/')) {
+                $srcPath = public_path($property_image->file_name);
+                $ext     = strtolower(pathinfo($srcPath, PATHINFO_EXTENSION));
+                // Copy to a writable location so the shared original is never modified
+                $newFilename = uniqid() . '.' . $ext;
+                $destDir     = storage_path('app/public/property_images');
+                if (! is_dir($destDir)) {
+                    mkdir($destDir, 0755, true);
+                }
+                $destPath = $destDir . '/' . $newFilename;
+                copy($srcPath, $destPath);
+                $source = match($ext) {
+                    'png'  => imagecreatefrompng($destPath),
+                    'gif'  => imagecreatefromgif($destPath),
+                    default => imagecreatefromjpeg($destPath),
+                };
+                $rotate = imagerotate($source, $degrees, 0);
+                match($ext) {
+                    'png'  => imagepng($rotate, $destPath, 0),
+                    'gif'  => imagegif($rotate, $destPath),
+                    default => imagejpeg($rotate, $destPath, 90),
+                };
+                imagedestroy($source);
+                imagedestroy($rotate);
+                $newRelPath = 'storage/property_images/' . $newFilename;
+                PropertyImages::where('id', $property_image->id)->update([
+                    'file_name' => $newRelPath,
+                    'thumb'     => $newRelPath,
+                ]);
+                return response()->json([
+                    'file_name'   => $newRelPath,
+                    'path'        => $newRelPath,
+                    'property_id' => $property_image->property_id,
+                ]);
+            }
+
+            // Local storage file (stored via Storage::disk('public') → storage/property_images/)
+            if (str_starts_with($property_image->file_name, 'storage/')) {
+                $fullPath = public_path($property_image->file_name);
+                $ext      = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+                $source   = match($ext) {
+                    'png'  => imagecreatefrompng($fullPath),
+                    'gif'  => imagecreatefromgif($fullPath),
+                    default => imagecreatefromjpeg($fullPath),
+                };
+                $rotate = imagerotate($source, $degrees, 0);
+                match($ext) {
+                    'png'  => imagepng($rotate, $fullPath, 0),
+                    'gif'  => imagegif($rotate, $fullPath),
+                    default => imagejpeg($rotate, $fullPath, 90),
+                };
+                imagedestroy($source);
+                imagedestroy($rotate);
+                return response()->json([
+                    'file_name'   => $property_image->file_name,
+                    'path'        => $property_image->file_name,
+                    'property_id' => $property_image->property_id,
+                ]);
+            }
+
+            // S3 path (e.g. property_images/filename.jpg — not a full URL)
+            if (str_starts_with($property_image->file_name, 'property_images/')) {
+                $ext      = strtolower(pathinfo($property_image->file_name, PATHINFO_EXTENSION));
+                $tmpFile  = tempnam(sys_get_temp_dir(), 'rotate_') . '.' . $ext;
+                file_put_contents($tmpFile, \Illuminate\Support\Facades\Storage::disk('s3')->get($property_image->file_name));
+                $source = match($ext) {
+                    'png'  => imagecreatefrompng($tmpFile),
+                    'gif'  => imagecreatefromgif($tmpFile),
+                    default => imagecreatefromjpeg($tmpFile),
+                };
+                $rotate = imagerotate($source, $degrees, 0);
+                match($ext) {
+                    'png'  => imagepng($rotate, $tmpFile, 0),
+                    'gif'  => imagegif($rotate, $tmpFile),
+                    default => imagejpeg($rotate, $tmpFile, 90),
+                };
+                imagedestroy($source);
+                imagedestroy($rotate);
+                \Illuminate\Support\Facades\Storage::disk('s3')->put($property_image->file_name, file_get_contents($tmpFile));
+                unlink($tmpFile);
+                return response()->json([
+                    'file_name'   => $property_image->file_name,
+                    'path'        => $property_image->file_name,
+                    'property_id' => $property_image->property_id,
+                ]);
+            }
+
             if (str_starts_with($property_image->file_name, 'http')) {
                 /* $assetPath = Storage::disk('s3')->url('property_images/isem9uVyntrKHoLsFUE4P3FneeTp3tmX7e3GL0ys.jpg');
                 $extension = pathinfo($property_image->file_name, PATHINFO_EXTENSION);

@@ -5,6 +5,7 @@ namespace App\Livewire\PhotoLibrary;
 use App\Models\Properties;
 use App\Models\PropertyImages;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -36,59 +37,47 @@ class AddNewImage extends Component
 
     public function save()
     {
-        // Validate files server-side
-        $this->validate([
-            'thumbnail.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-        ]);
-
-        if (is_array($this->thumbnail)) {
-            foreach ($this->thumbnail as $file) {
-                // Additional MIME type verification
-                if (!$this->validateMimeType($file, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
-                    $this->alert('error', 'Invalid file type detected. Only image files are allowed.');
-                    return;
-                }
-
-                $image = new File($file['path']);
-                $path = uploadS3Image('property_images', $image);
-				$thumb_path = uploadS3ImageThumb('property_images_thumb', $image, env('THUMB_WIDTH'));
-
-                $property_image = new PropertyImages;
-                $property_image->property_id = $this->property->id;
-                $property_image->file_name = $path;
-                $property_image->thumb = $thumb_path;
-                $property_image->save();
-            }
-        } else {
-            if(isset($this->thumbnail['path'])) {
-                $image = new File($this->thumbnail['path']);
-                $path = uploadS3Image('property_images', $image);
-                $thumb_path = uploadS3ImageThumb('property_images_thumb', $image, env('THUMB_WIDTH'));
-                $property_image = new PropertyImages;
-                $property_image->property_id = $this->property->id;
-                $property_image->file_name = $path;
-                $property_image->thumb = $thumb_path;
-                $property_image->save();
-            }
+        if (empty($this->thumbnail)) {
+            $this->alert('error', 'Please select at least one image.');
+            return;
         }
 
-        $this->alert('success', 'Image added successfully.');
+        $files = is_array($this->thumbnail) ? array_values($this->thumbnail) : [$this->thumbnail];
+        $isS3  = config('filesystems.default') === 's3';
 
+        foreach ($files as $file) {
+            if (empty($file['path'])) {
+                continue;
+            }
+
+            if ($isS3) {
+                $image     = new File($file['path']);
+                $path      = uploadS3Image('property_images', $image);
+                $thumbPath = uploadS3ImageThumb('property_images_thumb', $image, env('THUMB_WIDTH'));
+            } else {
+                $ext      = pathinfo($file['name'] ?? '', PATHINFO_EXTENSION) ?: 'jpg';
+                $filename = uniqid() . '.' . strtolower($ext);
+
+                // Store in storage/app/public/property_images/ — accessible via /storage/
+                Storage::disk('public')->put('property_images/' . $filename, file_get_contents($file['path']));
+
+                // Path stored in DB — asset_s3() with local disk returns asset(path)
+                // which resolves to /storage/property_images/filename via the storage symlink
+                $path      = 'storage/property_images/' . $filename;
+                $thumbPath = $path;
+            }
+
+            PropertyImages::create([
+                'property_id' => $this->property->id,
+                'file_name'   => $path,
+                'thumb'       => $thumbPath,
+            ]);
+        }
+
+        $this->alert('success', 'Images added successfully.');
         $this->dispatch('refresh');
         $this->show = false;
         $this->reset('thumbnail');
-    }
-
-    /**
-     * Validate file MIME type to prevent spoofing
-     */
-    private function validateMimeType($file, array $allowedMimeTypes): bool
-    {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file['path']);
-        finfo_close($finfo);
-
-        return in_array($mimeType, $allowedMimeTypes);
     }
 
     public function render()

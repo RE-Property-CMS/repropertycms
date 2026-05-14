@@ -863,6 +863,8 @@ function saveImageRotate() {
             var str1 = response.file_name
             if (str1.startsWith('http')) {
                 documentUrl = response.file_name
+            } else if (str1.startsWith('storage/') || str1.startsWith('property_images/')) {
+                documentUrl = web_url + '/' + response.file_name + '?q=' + time.getTime()
             }
 
             $(".image-rotate-wrap").hide();
